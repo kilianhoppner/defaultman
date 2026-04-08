@@ -1,0 +1,196 @@
+/* Fonts */
+
+@font-face {
+  font-family: "Diatype";
+  src: url("typefaces/ABCDiatypeEdu-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Circular";
+  src: url("typefaces/CircularXX-Medium.otf") format("opentype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "Courgette";
+  src: url("typefaces/Courgette-Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+/* Body */
+body {
+  min-height: 100vh;
+  margin:30px;
+  overflow-x: hidden;
+  background:
+  linear-gradient(to bottom, rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0) 20%),
+  linear-gradient(to top,    rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0) 20%),
+  linear-gradient(to bottom, #ffffff 0%, #ffffff 100vh);
+  font-family: "Diatype";
+  font-weight: 400; 
+  font-size: 1.6em;
+  color: #003cff;
+  line-height: 1.2;
+}
+
+.footer {
+  margin-top: auto;   /* pushes footer to page bottom when content is short */
+  width: 100%;
+  text-align: center;
+  z-index: 999;
+}
+
+.hyperlink,
+.hyperlink:visited,
+.hyperlink:active {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.hyperlink:hover {
+  color: red;
+  text-decoration: underline;
+}
+
+/* Highlight color */
+::selection {
+  background: #aeaeae;
+}
+
+
+/* =========================
+   TOP BAR LAYOUT
+========================= */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  position: relative; /* for absolute logo centering */
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* push right section to far right */
+  text-align: right;
+}
+
+.email {
+  font-size: 2.3em;
+  text-decoration: none;
+  transform-origin: center;
+  display: inline-block;
+  margin-right: 0.45em;
+}
+
+.email:hover {
+  animation: jiggle-rotate 0.27s linear infinite;
+}
+
+@keyframes jiggle-rotate {
+  0%   { transform: rotate(-8deg); }
+  50%  { transform: rotate(8deg); }
+  100% { transform: rotate(-8deg); }
+}
+
+
+.profile {
+  font-size: 1.7em;
+  text-decoration: none;
+  transform-origin: center;
+  display: inline-block;
+  transition: transform 180ms ease;
+}
+
+.profile:hover {
+  transform: scale(1.26) rotate(6deg);
+}
+
+.profile-content {
+  max-width: 68ch;
+  margin-left: clamp(35px, 14vw, 240px);
+  margin-top: 40px;
+  margin-bottom: 80px;
+}
+
+.profile-content p.section-heading {
+  color: rgb(255, 0, 221);
+}
+
+
+
+
+/* =========================
+   GALLERY
+========================= */
+
+.gallery {
+  --gap: 16px;
+  --cell-min: 180px; /* controls when columns collapse */
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: repeat(auto-fit, minmax(var(--cell-min), 1fr));
+  margin-top: 40px;
+  margin-bottom: 80px;
+}
+
+/* Force max 5 columns on wide screens */
+@media (min-width: 1200px) {
+  .gallery {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.gallery img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  transition: transform 180ms ease;
+}
+.gallery img:hover {
+  transform: scale(1.26);
+}
+
+
+/* Per-image gallery overrides */
+.gallery img[class] {
+  max-height: var(--img-max-height, 100%);
+  max-width: var(--img-max-width, 100%);
+  width: auto;
+  height: auto;
+  justify-self: center;
+  align-self: center;
+  rotate: var(--img-rotate, 0deg);
+}
+
+.gallery img.mens-rights { --img-max-height: 60%; }
+.gallery img.cable { --img-max-height: 55%; --img-rotate: 0.5deg; }
+.gallery img.daddy { --img-max-height: 55%; }
+.gallery img.vulnerability { --img-max-height: 100%; --img-max-width: 70%; }
+.gallery img.valerie { --img-max-height: 35%; }
+.gallery img.societyfor { --img-max-height: 65%; }
+.gallery img.ilovedaddy { --img-max-height: 40%; --img-rotate: 0.5deg; }
+.gallery img.head { --img-max-height: 75%; }
+.gallery img.bridge { --img-max-height: 65%; }
+.gallery img.tshirt { --img-max-height: 100%; }
+.gallery img.spinebeam { --img-max-height: 55%; }
+.gallery img.sketchhouse { --img-max-height: 95%; }
+.gallery img.steamroller { --img-max-height: 55%; }
+.gallery img.pdf { --img-max-height: 37%; }
+.gallery img.samegrass { --img-max-height: 45%; }
+.gallery img.banana { --img-max-height: 95%; }
+.gallery img.hellokitty { --img-max-height: 85%; }
+.gallery img.listentoyourself { --img-max-height: 95%; }
+.gallery img.booty { --img-max-height: 55%; }
+.gallery img.daddyapplications { --img-max-height: 55%; }
+.gallery img.elena { --img-max-height: 50%; }
+.gallery img[class~="3Dspring"] { --img-max-height: 70%; }
+.gallery img.buildbridgesnotwalls { --img-max-height: 89%; }
+.gallery img.eatdicksuckpussy { --img-max-height: 25%; }
+.gallery img.typeface { --img-max-height: 30%; }
+.gallery img.jesusisgay { --img-max-height: 65%; }
+.gallery img.projector { --img-max-height: 75%; --img-rotate: 1.5deg; }
