@@ -170,17 +170,17 @@ body {
 
 .gallery-button:hover {
   background: #FF49EA;
-  color:  #FF49EA;
+  color:  #ffffff;
 }
 
 .bio-button:hover {
   background: #003cff;
-  color:  #003cff;
+  color:  #ffffff;
 }
 
 .email-button:hover {
   background: #4FFF70;
-  color: #4FFF70;
+  color: #ffffff;
 }
 
 .profile-content {
