@@ -65,8 +65,18 @@ body {
 
 .top-bar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative; /* for absolute logo centering */
+  position: sticky;
+  top: 25px;
+  z-index: 1000;
+}
+
+.top-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20px;
 }
 
 .time {
@@ -76,35 +86,101 @@ body {
   text-align: right;
 }
 
-.email {
-  font-size: 2.3em;
-  text-decoration: none;
+.clock {
+  position: relative;
+  width: 75px;
+  height: 75px;
+  border: 1.5px solid black;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transform: scale(1.2);
   transform-origin: center;
-  display: inline-block;
-  margin-right: 0.45em;
 }
 
-.email:hover {
-  animation: jiggle-rotate 0.27s linear infinite;
+.clock-hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0 50%;
+  border-radius: 999px;
 }
 
-@keyframes jiggle-rotate {
-  0%   { transform: rotate(-8deg); }
-  50%  { transform: rotate(8deg); }
-  100% { transform: rotate(-8deg); }
+.hour-hand {
+  width: 25px;
+  height: 2px;
+  background: #003cff;
 }
 
+.minute-hand {
+  width: 35px;
+  height: 1.5px;
+  background: #003cff;
+}
 
-.profile {
-  font-size: 1.7em;
+.second-hand {
+  width: 35px;
+  height: 1.5px;
+  background: red;
+}
+
+.clock-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: white;
+  border: 1.5px solid black;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.nav-button {
+  font-family: inherit;
+  font-size: 1em;
+  line-height: 1;
   text-decoration: none;
-  transform-origin: center;
-  display: inline-block;
-  transition: transform 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 12px;
+  background: white;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
-.profile:hover {
-  transform: scale(1.26) rotate(6deg);
+
+.gallery-button {
+  color:  #FF49EA;
+  border: 1.5px solid  #FF49EA;
+  border-radius: 0;
+}
+
+.bio-button {
+  color: #003cff;
+  border: 1.5px solid  #003cff;
+  border-radius: 50px;
+}
+
+
+.email-button {
+  color: #00ff48;
+  border: 1.5px solid  #00ff48;
+  border-radius: 15px;
+}
+
+.gallery-button:hover {
+  background: #FF49EA;
+  color:  #FF49EA;
+}
+
+.bio-button:hover {
+  background: #003cff;
+  color:  #003cff;
+}
+
+.email-button:hover {
+  background: #4FFF70;
+  color: #4FFF70;
 }
 
 .profile-content {
@@ -127,18 +203,17 @@ body {
 
 .gallery {
   --gap: 16px;
-  --cell-min: 180px; /* controls when columns collapse */
   display: grid;
   gap: var(--gap);
-  grid-template-columns: repeat(auto-fit, minmax(var(--cell-min), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 40px;
   margin-bottom: 80px;
 }
 
-/* Force max 5 columns on wide screens */
-@media (min-width: 1200px) {
+/* Tablet layout */
+@media (max-width: 1024px) {
   .gallery {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -193,4 +268,68 @@ body {
 .gallery img.eatdicksuckpussy { --img-max-height: 25%; }
 .gallery img.typeface { --img-max-height: 30%; }
 .gallery img.jesusisgay { --img-max-height: 65%; }
-.gallery img.projector { --img-max-height: 75%; --img-rotate: 1.5deg; }
+.gallery img.extraordinarybeauty { --img-max-height: 65%; }
+.gallery img.upyourass { --img-max-height: 75%; }
+.gallery img.projector { --img-max-height: 75%; --img-rotate: -0.5deg;}
+.gallery img.laptop { --img-max-height: 85%; }
+.gallery img.scissors { --img-max-height: 70%; }
+
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    position: static;
+  }
+
+  .time {
+    order: -1;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .clock {
+    width: 135px;
+    height: 135px;
+    transform: none;
+  }
+
+  .hour-hand {
+    width: 45px;
+    height: 3px;
+  }
+
+  .minute-hand,
+  .second-hand {
+    width: 60px;
+    height: 2px;
+  }
+
+  .clock-center {
+    width: 9px;
+    height: 9px;
+    border-width: 2px;
+  }
+
+  .top-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .top-actions .nav-button {
+    font-size: 1.5em;
+    padding: 23px 18px;
+  }
+
+  .profile-content {
+    margin-left: 16px;
+    margin-right: 16px;
+    max-width: none;
+  }
+
+  .gallery {
+    gap: 8px;
+    grid-template-columns: 1fr;
+  }
+}
