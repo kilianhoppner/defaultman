@@ -23,10 +23,10 @@ body {
   min-height: 100vh;
   margin:30px;
   overflow-x: hidden;
-  background:
-  linear-gradient(to bottom, rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0) 20%),
+  background:white;
+  /* linear-gradient(to bottom, rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0) 20%),
   linear-gradient(to top,    rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0) 20%),
-  linear-gradient(to bottom, #ffffff 0%, #ffffff 100vh);
+  linear-gradient(to bottom, #ffffff 0%, #ffffff 100vh); */
   font-family: "Diatype";
   font-weight: 400; 
   font-size: 1.6em;
@@ -64,6 +64,8 @@ body {
 ========================= */
 
 .top-bar {
+  --nav-frost-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --nav-frost-dur: 380ms;
   display: flex;
   align-items: flex-start;
   position: relative; /* for absolute logo centering */
@@ -95,6 +97,29 @@ body {
   background-color: #ffffff;
   transform: scale(1.2);
   transform-origin: center;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 4px 16px rgba(0, 0, 0, 0.1);
+  transition:
+    box-shadow var(--nav-frost-dur) var(--nav-frost-ease),
+    transform var(--nav-frost-dur) var(--nav-frost-ease);
+}
+
+.clock:hover {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 6px 22px rgba(0, 0, 0, 0.12);
+  transform: scale(1.2) translateY(-2px);
+}
+
+.clock:active {
+  transform: scale(1.2) translateY(0);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    inset 0 2px 8px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .clock-hand {
@@ -137,8 +162,6 @@ body {
 
 /* Frosted glass — cool blue-grey (same over white and yellow bands) */
 .nav-button {
-  --nav-frost-ease: cubic-bezier(0.33, 1, 0.68, 1);
-  --nav-frost-dur: 380ms;
   font-family: inherit;
   font-size: 1em;
   line-height: 1;
@@ -164,8 +187,8 @@ body {
       rgba(205, 216, 234, 0.14) 100%
     ),
     rgba(88, 98, 118, 0.46);
-  backdrop-filter: blur(28px) saturate(1.04);
-  -webkit-backdrop-filter: blur(28px) saturate(1.04);
+  backdrop-filter: blur(20px) saturate(2);
+  -webkit-backdrop-filter: blur(10px) saturate(2.2);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
@@ -222,8 +245,23 @@ body {
   margin-bottom: 80px;
 }
 
+/* Tighter rhythm than browser defaults (body is 1.6em, so 1em margins read huge) */
+.profile-content p {
+  margin: 0 0 0.85em 0;
+}
+
 .profile-content p.section-heading {
-  color: rgb(255, 0, 221);
+  color: #003cff;
+  background-color: rgb(255, 255, 0);
+  display: inline-block;
+  padding: 0.1em 0.22em 0.14em;
+  margin-bottom: 0.72em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.profile-content p.section-heading:not(:first-child) {
+  margin-top: 1.75em;
 }
 
 
@@ -648,6 +686,22 @@ body {
     width: 135px;
     height: 135px;
     transform: none;
+  }
+
+  .clock:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      0 6px 22px rgba(0, 0, 0, 0.12);
+  }
+
+  .clock:active {
+    transform: translateY(0);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.1),
+      inset 0 2px 8px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .hour-hand {
