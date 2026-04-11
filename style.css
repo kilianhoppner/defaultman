@@ -30,7 +30,7 @@ body {
   font-family: "Diatype";
   font-weight: 400; 
   font-size: 1.6em;
-  color: #003cff;
+  color: #0000ff;
   line-height: 1.2;
 }
 
@@ -133,13 +133,13 @@ body {
 .hour-hand {
   width: 25px;
   height: 2px;
-  background: #003cff;
+  background: #0000ff;
 }
 
 .minute-hand {
   width: 35px;
   height: 1.5px;
-  background: #003cff;
+  background: #0000ff;
 }
 
 .second-hand {
@@ -182,13 +182,13 @@ body {
   background:
     linear-gradient(
       180deg,
-      rgba(238, 244, 252, 0.44) 0%,
-      rgba(218, 226, 242, 0.26) 45%,
-      rgba(205, 216, 234, 0.14) 100%
+      rgba(255, 255, 255, 0.587) 0%,
+      rgba(218, 226, 242, 0.453) 45%,
+      rgba(205, 216, 234, 0.127) 100%
     ),
     rgba(88, 98, 118, 0.46);
-  backdrop-filter: blur(20px) saturate(2);
-  -webkit-backdrop-filter: blur(10px) saturate(2.2);
+  backdrop-filter: blur(20px) saturate(2.2);
+  -webkit-backdrop-filter: blur(20px) saturate(2.2);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
