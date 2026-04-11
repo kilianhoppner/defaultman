@@ -681,4 +681,8 @@ body {
     gap: 8px;
     grid-template-columns: 1fr;
   }
+
+  .gallery .gallery-midnight-time {
+    font-size: clamp(2.25rem, 16vw, 4rem);
+  }
 }
