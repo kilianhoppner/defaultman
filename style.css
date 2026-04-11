@@ -606,6 +606,47 @@ body {
   color: inherit;
 }
 
+/* Recycling-style arrows (gallery/arrows.png): infinite rotation around centre */
+.gallery .gallery-arrow-spin {
+  --img-max-height: 68%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: min(100%, var(--img-max-width, 100%));
+  aspect-ratio: 1 / 1;
+  max-height: var(--img-max-height, 100%);
+  box-sizing: border-box;
+  justify-self: center;
+  align-self: center;
+  transition: transform 180ms ease;
+}
+
+.gallery .gallery-arrow-spin:hover {
+  transform: scale(1.26);
+}
+
+.gallery .gallery-arrow-spin__img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(88%, 11rem);
+  max-height: var(--img-max-height, 100%);
+  aspect-ratio: auto;
+  object-fit: contain;
+  transform-origin: center center;
+  animation: gallery-arrow-spin 20s linear infinite;
+}
+
+@keyframes gallery-arrow-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .gallery img.samegrass { --img-max-height: 45%; }
 .gallery img.hellokitty { --img-max-height: 85%; }
 .gallery img.listentoyourself { --img-max-height: 95%; }
