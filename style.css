@@ -516,7 +516,96 @@ body {
 .gallery img.spinebeam { --img-max-height: 55%; }
 .gallery img.sketchhouse { --img-max-height: 95%; }
 .gallery img.steamroller { --img-max-height: 55%; }
-.gallery img.pdf { --img-max-height: 37%; }
+/* Weather room: orange ↔ blue crossfade. Tweak size via --weatherroom-scale (1 = default). */
+.gallery .gallery-weatherroom {
+  --img-max-height: 65%;
+  --img-max-width: 90%;
+  --pdf-orange: #ff7300;
+  --pdf-blue: #0033ff;
+  --weatherroom-scale: 0.70;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, var(--img-max-width, 100%));
+  aspect-ratio: 1 / 1;
+  max-height: var(--img-max-height, 100%);
+  height: auto;
+  justify-self: center;
+  align-self: center;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--pdf-orange);
+  transform: scale(var(--weatherroom-scale));
+  transform-origin: center center;
+  transition: transform 180ms ease;
+}
+
+.gallery .gallery-weatherroom::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pdf-blue);
+  opacity: 0;
+  animation: gallery-weatherroom-fill 12s ease-in-out infinite;
+}
+
+@keyframes gallery-weatherroom-fill {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.gallery .gallery-weatherroom:hover {
+  transform: scale(calc(var(--weatherroom-scale) * 1.26));
+}
+
+/* Last minute before midnight: seconds loop 00–59 forever (never 00:00). */
+.gallery .gallery-midnight-tile {
+  --img-max-height: 70%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: min(100%, var(--img-max-width, 100%));
+  aspect-ratio: 1 / 1;
+  max-height: var(--img-max-height, 100%);
+  box-sizing: border-box;
+  justify-self: center;
+  align-self: center;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gallery .gallery-midnight-time {
+  display: inline-block;
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 400;
+  color: red;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.5rem, 7vw, 3.25rem);
+  line-height: 1.2;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  transform-origin: center center;
+  transition: transform 180ms ease;
+}
+
+.gallery .gallery-midnight-time:hover {
+  transform: scale(1.26);
+}
+
+.gallery .gallery-midnight-time::selection {
+  background: transparent;
+  color: inherit;
+}
+
 .gallery img.samegrass { --img-max-height: 45%; }
 .gallery img.hellokitty { --img-max-height: 85%; }
 .gallery img.listentoyourself { --img-max-height: 95%; }
