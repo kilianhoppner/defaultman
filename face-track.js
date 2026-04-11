@@ -17,8 +17,14 @@
   /** Lower = calmer motion (position only; size stays fixed). */
   const SMOOTH = 0.055;
 
+  /** Matches gallery mobile breakpoint in style.css — larger box on narrow viewports. */
+  const MOBILE_MAX_WIDTH = 768;
+  function faceBoxFraction() {
+    return window.innerWidth <= MOBILE_MAX_WIDTH ? 0.44 : 0.34;
+  }
+
   function placeFallbackBox(W, H) {
-    const size = Math.min(W, H) * 0.32;
+    const size = Math.min(W, H) * faceBoxFraction();
     const x = (W - size) / 2;
     const y = (H - size) / 2;
     outline.style.opacity = '1';
@@ -49,7 +55,7 @@
     const fcy = by + bh / 2;
     const cx = W - (ox + fcx * scale);
     const cy = oy + fcy * scale;
-    const s = Math.min(W, H) * 0.32;
+    const s = Math.min(W, H) * faceBoxFraction();
     return clampBox({ x: cx - s / 2, y: cy - s / 2, w: s, h: s }, W, H);
   }
 
@@ -73,7 +79,7 @@
     }
 
     const t = targetBox;
-    const size = Math.min(W, H) * 0.32;
+    const size = Math.min(W, H) * faceBoxFraction();
     if (!displayBox) {
       displayBox = { x: t.x, y: t.y, w: size, h: size };
     } else {

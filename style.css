@@ -726,4 +726,29 @@ body {
   .gallery .gallery-midnight-time {
     font-size: clamp(2.25rem, 16vw, 4rem);
   }
+
+  /*
+   * Single-column gallery: tune legibility vs. tile frame.
+   * Adjust these first when something feels off on phones.
+   */
+  .gallery img.vulnerability {
+    --img-max-width: 88%;
+  }
+
+  .gallery .gallery-weatherroom {
+    --weatherroom-scale: 0.78;
+  }
+
+  .gallery .gallery-audio-visual {
+    width: min(77%, 9.5rem);
+    max-width: min(77%, var(--img-max-width, 100%));
+  }
+
+  .gallery .gallery-arrow-spin {
+    --img-max-height: 78%;
+  }
+
+  .gallery .gallery-arrow-spin__img {
+    max-width: min(92%, 12rem);
+  }
 }
