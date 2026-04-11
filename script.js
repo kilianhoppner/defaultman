@@ -172,23 +172,6 @@ function setupGalleryAudioSlots() {
   });
 }
 
-/**
- * Warm nav frosted tint only while the sticky bar sits over the page’s top yellow
- * gradient (body yellow fades out in the first ~20% of document height). Reduces a
- * green cast from yellow + neutral blur; scrolling past leaves default .nav-button.
- */
-function setupNavOverYellowBand() {
-  function update() {
-    const sh = document.documentElement.scrollHeight;
-    const yellowBandPx = sh * 0.2;
-    document.body.classList.toggle('nav-over-yellow', window.scrollY < yellowBandPx);
-  }
-
-  update();
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update, { passive: true });
-}
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
@@ -196,7 +179,6 @@ if (document.readyState === 'loading') {
     setupHyperlinks();
     setupGalleryMidnightStamp();
     setupGalleryAudioSlots();
-    setupNavOverYellowBand();
   });
 } else {
   setupLondonClock();
@@ -204,5 +186,4 @@ if (document.readyState === 'loading') {
   setupHyperlinks();
   setupGalleryMidnightStamp();
   setupGalleryAudioSlots();
-  setupNavOverYellowBand();
 }

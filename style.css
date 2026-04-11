@@ -135,7 +135,7 @@ body {
   transform: translate(-50%, -50%);
 }
 
-/* Frosted glass — blur content behind the sticky bar; tint keeps white type readable */
+/* Frosted glass — cool blue-grey (same over white and yellow bands) */
 .nav-button {
   --nav-frost-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --nav-frost-dur: 380ms;
@@ -152,20 +152,20 @@ body {
   color: #ffffff;
   -webkit-font-smoothing: antialiased;
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.35),
-    0 0 12px rgba(0, 0, 0, 0.12);
+    0 1px 2px rgba(0, 0, 0, 0.36),
+    0 0 14px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.42);
   outline: none;
   background:
     linear-gradient(
       180deg,
-      rgba(255, 252, 246, 0.3) 0%,
-      rgba(255, 250, 242, 0.12) 45%,
-      rgba(255, 248, 238, 0.05) 100%
+      rgba(238, 244, 252, 0.44) 0%,
+      rgba(218, 226, 242, 0.26) 45%,
+      rgba(205, 216, 234, 0.14) 100%
     ),
-    rgba(48, 44, 46, 0.4);
-  backdrop-filter: blur(28px) saturate(1.12);
-  -webkit-backdrop-filter: blur(28px) saturate(1.12);
+    rgba(88, 98, 118, 0.46);
+  backdrop-filter: blur(28px) saturate(1.04);
+  -webkit-backdrop-filter: blur(28px) saturate(1.04);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
@@ -177,30 +177,7 @@ body {
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .nav-button {
-    background: rgba(82, 76, 78, 0.94);
-  }
-}
-
-/*
- * Yellow band (body top gradient): cool blue-grey frost (only when
- * body.nav-over-yellow is set — see script.js). Default .nav-button is unchanged over white.
- */
-body.nav-over-yellow .nav-button {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(244, 248, 255, 0.34) 0%,
-      rgba(232, 238, 250, 0.14) 45%,
-      rgba(226, 232, 246, 0.06) 100%
-    ),
-    rgba(46, 52, 64, 0.42);
-  backdrop-filter: blur(28px) saturate(0.96);
-  -webkit-backdrop-filter: blur(28px) saturate(0.96);
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  body.nav-over-yellow .nav-button {
-    background: rgba(78, 84, 96, 0.94);
+    background: rgba(105, 115, 135, 0.93);
   }
 }
 
