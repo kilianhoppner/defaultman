@@ -135,52 +135,118 @@ body {
   transform: translate(-50%, -50%);
 }
 
+/* Chrome metal buttons — specular + vertical gloss, bezel rim, etched white type */
 .nav-button {
   font-family: inherit;
   font-size: 1em;
   line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 15px 12px;
-  background: white;
-  transition: background-color 160ms ease, color 160ms ease;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  /* Letterpress + slight halo on mid-tone chrome */
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.48),
+    0 1px 1px rgba(255, 255, 255, 0.3),
+    0 0 10px rgba(0, 0, 0, 0.18);
+  border: none;
+  outline: none;
+  /* Layered: specular hotspot, gloss sweep, cool-toned metal body */
+  background:
+    radial-gradient(
+      130% 90% at 50% -8%,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.15) 38%,
+      rgba(255, 255, 255, 0) 62%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.58) 0%,
+      rgba(255, 255, 255, 0.16) 16%,
+      rgba(255, 255, 255, 0) 36%,
+      rgba(0, 0, 0, 0) 54%,
+      rgba(15, 23, 35, 0.07) 100%
+    ),
+    linear-gradient(
+      180deg,
+      #f5f8fc 0%,
+      #e1e9f2 14%,
+      #cdd8e4 32%,
+      #b4c2d2 52%,
+      #8e9fb2 72%,
+      #6f7f90 92%,
+      #5a6774 100%
+    );
+  box-shadow:
+    /* outer rim + lip */
+    0 0 0 1px rgba(0, 0, 0, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.42),
+    /* metallic bezel: bright top rim; soft bottom */
+    inset 0 2px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -8px 18px rgba(15, 23, 35, 0.15),
+    /* inner body depth */
+    inset 0 7px 16px rgba(255, 255, 255, 0.32),
+    /* lift shadow */
+    0 3px 5px rgba(0, 0, 0, 0.12),
+    0 8px 18px rgba(15, 23, 35, 0.13);
+  transition: filter 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+.nav-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  outline-offset: 3px;
+}
 
 .gallery-button {
-  color:  #FF49EA;
-  border: 1.5px solid  #FF49EA;
   border-radius: 0;
 }
 
 .bio-button {
-  color: #003cff;
-  border: 1.5px solid  #003cff;
   border-radius: 50px;
 }
 
-
 .email-button {
-  color: #00ff48;
-  border: 1.5px solid  #00ff48;
   border-radius: 15px;
 }
 
-.gallery-button:hover {
-  background: #FF49EA;
-  color:  #ffffff;
-}
-
-.bio-button:hover {
-  background: #003cff;
-  color:  #ffffff;
-}
-
-.email-button:hover {
-  background: #4FFF70;
+.nav-button:hover {
+  filter: brightness(1.08) contrast(1.06) saturate(1.03);
   color: #ffffff;
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.48),
+    0 1px 2px rgba(255, 255, 255, 0.42),
+    0 0 14px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 1px 0 rgba(255, 255, 255, 0.52),
+    inset 0 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -9px 20px rgba(55, 65, 78, 0.1),
+    inset 0 9px 20px rgba(255, 255, 255, 0.48),
+    0 4px 8px rgba(0, 0, 0, 0.12),
+    0 12px 28px rgba(15, 23, 35, 0.16);
+  transform: translateY(-2px);
+}
+
+.nav-button:active {
+  filter: brightness(0.94) contrast(1.02);
+  color: #ffffff;
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.52),
+    0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.24),
+    0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 3px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -5px 16px rgba(45, 52, 62, 0.18),
+    inset 0 11px 28px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.16);
 }
 
 .profile-content {
@@ -244,33 +310,227 @@ body {
 
 .gallery img.mens-rights { --img-max-height: 60%; }
 .gallery img.cable { --img-max-height: 55%; --img-rotate: 0.5deg; }
-.gallery img.daddy { --img-max-height: 55%; }
+.gallery .face-track-slot,
+.gallery .gallery-iframe-slot,
+.gallery .gallery-audio-slot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 100%;
+  max-width: 100%;
+  justify-self: center;
+  align-self: center;
+  overflow: hidden;
+  transition: transform 180ms ease;
+  background: transparent;
+}
+
+.gallery .gallery-iframe-slot,
+.gallery .gallery-audio-slot {
+  max-height: var(--img-max-height, 100%);
+  max-width: var(--img-max-width, 100%);
+}
+
+.gallery .gallery-iframe-slot:hover {
+  transform: scale(1.26);
+}
+
+.gallery .gallery-iframe-slot iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.gallery .gallery-audio-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(6px, 2vw, 14px);
+  box-sizing: border-box;
+  transition: none;
+}
+
+/* Hidden player */
+.gallery .gallery-audio-slot .gallery-audio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gallery .gallery-audio-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(88%, 11rem);
+  max-width: min(88%, var(--img-max-width, 100%));
+  max-height: min(88%, var(--img-max-height, 100%));
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  margin: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: center center;
+  transition: transform 180ms ease;
+  /* Hit-testing follows the image only (see .gallery-audio-icon); letterboxing is inert. */
+  pointer-events: none;
+}
+
+.gallery .gallery-audio-visual:has(.gallery-audio-icon:hover),
+.gallery .gallery-audio-visual:focus-visible {
+  transform: scale(1.26);
+}
+
+.gallery .gallery-audio-visual:focus-visible {
+  outline: 2px solid #003cff;
+  outline-offset: 4px;
+}
+
+/* Hover / focus: centered play-pause disc (synced via .is-playing + [hidden] on glyphs) */
+.gallery .gallery-audio-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.gallery .gallery-audio-visual:has(.gallery-audio-icon:hover) .gallery-audio-overlay,
+.gallery .gallery-audio-visual:focus-visible .gallery-audio-overlay {
+  opacity: 1;
+}
+
+.gallery .gallery-audio-overlay-circle {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* One dimension + aspect-ratio keeps a true circle (border included via box-sizing) */
+  width: clamp(24px, 18.5%, 37px);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(30, 30, 35, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.gallery .gallery-audio-overlay-circle svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+.gallery .gallery-audio-overlay-circle svg[hidden] {
+  display: none;
+}
+
+.gallery .gallery-audio-icon {
+  display: block;
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: none;
+  pointer-events: auto;
+}
+
+.gallery img.gallery-audio-icon:hover {
+  transform: none;
+}
+
+/* Hover grows only the outline, not the whole tile (face box is fixed size until then). */
+.gallery .face-track-slot:hover {
+  transform: none;
+}
+
+.gallery .face-track-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gallery .face-track-outline {
+  position: absolute;
+  box-sizing: border-box;
+  border: 4px solid #00ff41;
+  background: transparent;
+  pointer-events: none;
+  z-index: 1;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: opacity 120ms ease, transform 220ms ease;
+}
+
+.gallery .face-track-slot:hover .face-track-outline {
+  transform: scale(1.32);
+}
+
 .gallery img.vulnerability { --img-max-height: 100%; --img-max-width: 70%; }
 .gallery img.valerie { --img-max-height: 35%; }
 .gallery img.societyfor { --img-max-height: 65%; }
 .gallery img.ilovedaddy { --img-max-height: 40%; --img-rotate: 0.5deg; }
 .gallery img.head { --img-max-height: 75%; }
-.gallery img.bridge { --img-max-height: 65%; }
+
+/* Pink border is saturated; hue-rotate cycles it through the rainbow while B/W stay neutral */
+@keyframes bridge-rainbow-hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+.gallery img.bridge {
+  --img-max-height: 65%;
+  animation: bridge-rainbow-hue 12s linear infinite;
+}
 .gallery img.tshirt { --img-max-height: 100%; }
 .gallery img.spinebeam { --img-max-height: 55%; }
 .gallery img.sketchhouse { --img-max-height: 95%; }
 .gallery img.steamroller { --img-max-height: 55%; }
 .gallery img.pdf { --img-max-height: 37%; }
 .gallery img.samegrass { --img-max-height: 45%; }
-.gallery img.banana { --img-max-height: 95%; }
 .gallery img.hellokitty { --img-max-height: 85%; }
 .gallery img.listentoyourself { --img-max-height: 95%; }
 .gallery img.booty { --img-max-height: 55%; }
 .gallery img.daddyapplications { --img-max-height: 55%; }
 .gallery img.elena { --img-max-height: 50%; }
-.gallery img[class~="3Dspring"] { --img-max-height: 70%; }
+.gallery .gallery-iframe-slot.spring-3d { --img-max-height: 100%; }
 .gallery img.buildbridgesnotwalls { --img-max-height: 89%; }
 .gallery img.eatdicksuckpussy { --img-max-height: 25%; }
 .gallery img.typeface { --img-max-height: 30%; }
 .gallery img.jesusisgay { --img-max-height: 65%; }
 .gallery img.extraordinarybeauty { --img-max-height: 65%; }
 .gallery img.upyourass { --img-max-height: 75%; }
-.gallery img.projector { --img-max-height: 75%; --img-rotate: -0.5deg;}
+.gallery .gallery-audio-slot { --img-max-height: 75%; }
 .gallery img.laptop { --img-max-height: 85%; }
 .gallery img.scissors { --img-max-height: 70%; }
 

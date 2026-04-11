@@ -41,12 +41,62 @@ function setupHyperlinks() {
   });
 }
 
+/** Music tile: press the icon to play/pause. */
+function setupGalleryAudioSlots() {
+  document.querySelectorAll('.gallery-audio-slot').forEach((slot) => {
+    const audio = slot.querySelector('audio');
+    const visual = slot.querySelector('.gallery-audio-visual');
+    if (!audio || !visual) return;
+
+    const playGlyph = slot.querySelector('.gallery-audio-overlay-play');
+    const pauseGlyph = slot.querySelector('.gallery-audio-overlay-pause');
+
+    function syncLabel() {
+      const playing = !audio.paused && !audio.ended;
+      slot.classList.toggle('is-playing', playing);
+      visual.setAttribute('aria-label', playing ? 'Pause audio' : 'Play audio');
+      visual.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      if (playGlyph && pauseGlyph) {
+        if (playing) {
+          playGlyph.setAttribute('hidden', '');
+          pauseGlyph.removeAttribute('hidden');
+        } else {
+          pauseGlyph.setAttribute('hidden', '');
+          playGlyph.removeAttribute('hidden');
+        }
+      }
+    }
+    ['play', 'pause', 'ended', 'playing'].forEach((ev) => {
+      audio.addEventListener(ev, syncLabel);
+    });
+    syncLabel();
+
+    function toggle() {
+      if (audio.paused) audio.play().catch(() => {});
+      else audio.pause();
+    }
+
+    visual.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggle();
+    });
+
+    visual.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      toggle();
+    });
+  });
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
     setupHyperlinks();
+    setupGalleryAudioSlots();
   });
 } else {
   setupLondonClock();
   setupHyperlinks();
+  setupGalleryAudioSlots();
 }
