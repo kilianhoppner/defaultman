@@ -216,6 +216,9 @@ body {
 
 /* Frosted glass — cool blue-grey (same over white and yellow bands) */
 .nav-button {
+  /* Same as .top-bar: nav buttons outside the bar (e.g. gallery back) need these for transition */
+  --nav-frost-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --nav-frost-dur: 380ms;
   font-family: inherit;
   font-size: 1em;
   line-height: 1;
@@ -357,14 +360,13 @@ main.gallery-detail {
   flex-direction: column;
   width: 100%;
   box-sizing: border-box;
+  /* Use svh only — dvh changes as mobile browser chrome hides/shows and causes layout jump while scrolling */
   min-height: calc(100svh - var(--gallery-detail-chrome));
-  min-height: calc(100dvh - var(--gallery-detail-chrome));
 }
 
 .gallery-detail__hero .gallery-detail__stage {
   flex: 1 1 auto;
   min-height: min(72vh, calc(100svh - var(--gallery-detail-chrome) - 4rem));
-  min-height: min(72vh, calc(100dvh - var(--gallery-detail-chrome) - 4rem));
 }
 
 /* Extra space between image (stage) and title line */
@@ -388,12 +390,16 @@ main.gallery-detail {
   justify-content: center;
   width: 100%;
   min-height: min(72vh, calc(100svh - var(--gallery-detail-chrome) - 4rem));
-  min-height: min(72vh, calc(100dvh - var(--gallery-detail-chrome) - 4rem));
   flex-shrink: 0;
 }
 
 main.gallery-detail ~ footer.footer {
   margin-top: 0;
+}
+
+/* Injected by script.js — mobile-only Back button (see @media below) */
+.gallery-detail__back-wrap {
+  display: none;
 }
 
 .gallery-detail__image {
@@ -524,7 +530,6 @@ main.gallery-detail .gallery .gallery-midnight-time {
   margin: 0 auto;
   box-sizing: border-box;
   padding: clamp(6px, 1.2vw, 14px) clamp(16px, 3vw, 32px) clamp(22px, 3.5vw, 44px);
-  min-height: calc(100dvh - var(--gallery-detail-chrome));
   min-height: calc(100svh - var(--gallery-detail-chrome));
 }
 
@@ -1143,8 +1148,7 @@ section.gallery.midnight-page-single ~ footer.footer {
     justify-content: center;
     gap: 14px;
     position: static;
-    min-height: 100vh;
-    min-height: 100dvh;
+    min-height: 100svh;
     width: 100%;
     box-sizing: border-box;
     padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(20px, env(safe-area-inset-bottom, 0px));
@@ -1293,6 +1297,20 @@ section.gallery.midnight-page-single ~ footer.footer {
 
   .gallery-detail__stage .gallery-arrow-spin__img {
     max-width: min(90%, 17rem);
+  }
+
+  body:has(main.gallery-detail) .gallery-detail__back-wrap {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 16px max(28px, env(safe-area-inset-bottom, 0px));
+  }
+
+  body:has(main.gallery-detail) .nav-button.gallery-detail__back {
+    border-radius: 9999px;
+    font-size: 1.5em;
+    padding: 23px 18px;
   }
 
 }

@@ -138,6 +138,111 @@ function setupGalleryMidnightStamp() {
   window.setInterval(tick, 1000);
 }
 
+const PORTFOLIO_GALLERY_SCROLL_Y = 'portfolioGalleryScrollY';
+const PORTFOLIO_GALLERY_SCROLL_PENDING = 'portfolioGalleryScrollPending';
+
+/**
+ * Remember gallery grid scroll when opening a piece; restore when returning from
+ * gallery detail (Back link, top “Gallery” nav, or browser back). Uses referrer
+ * so we do not jump if the user went to Bio (etc.) before returning to index.
+ */
+function tryRestoreGalleryScrollOnIndex() {
+  if (!document.querySelector('section.gallery')) return;
+  if (sessionStorage.getItem(PORTFOLIO_GALLERY_SCROLL_PENDING) !== '1') return;
+
+  const raw = sessionStorage.getItem(PORTFOLIO_GALLERY_SCROLL_Y);
+  const ref = document.referrer;
+  let fromGallery = false;
+  if (!ref) {
+    fromGallery = true;
+  } else {
+    try {
+      const u = new URL(ref);
+      fromGallery = u.origin === window.location.origin && u.pathname.includes('/gallery-pages/');
+    } catch {
+      fromGallery = false;
+    }
+  }
+
+  sessionStorage.removeItem(PORTFOLIO_GALLERY_SCROLL_PENDING);
+  sessionStorage.removeItem(PORTFOLIO_GALLERY_SCROLL_Y);
+
+  if (!fromGallery) return;
+  if (raw == null) return;
+  const y = parseFloat(raw);
+  if (Number.isNaN(y) || y < 0) return;
+
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
+  const apply = () => {
+    window.scrollTo(0, y);
+  };
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      apply();
+      window.setTimeout(apply, 0);
+      window.setTimeout(apply, 120);
+    });
+  });
+  window.addEventListener('load', apply, { once: true });
+}
+
+function setupGalleryScrollRestore() {
+  const gallery = document.querySelector('section.gallery');
+  if (!gallery) return;
+
+  gallery.addEventListener(
+    'click',
+    (e) => {
+      if (!(e.target instanceof Element)) return;
+      const a = e.target.closest('a[href]');
+      if (!a || !gallery.contains(a)) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#')) return;
+      try {
+        const u = new URL(href, window.location.href);
+        if (!u.pathname.includes('/gallery-pages/')) return;
+      } catch {
+        return;
+      }
+      if (e.defaultPrevented) return;
+      if (e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (a.getAttribute('target') === '_blank') return;
+      sessionStorage.setItem(PORTFOLIO_GALLERY_SCROLL_Y, String(window.scrollY));
+      sessionStorage.setItem(PORTFOLIO_GALLERY_SCROLL_PENDING, '1');
+    },
+    true
+  );
+}
+
+function registerGalleryScrollRestoreOnPageshow() {
+  window.addEventListener('pageshow', () => {
+    tryRestoreGalleryScrollOnIndex();
+  });
+}
+
+/** Mobile gallery detail: “Back” to index, same slot as footer (above footer links). */
+function setupGalleryDetailBackButton() {
+  const main = document.querySelector('main.gallery-detail');
+  if (!main || document.querySelector('.gallery-detail__back-wrap')) return;
+  const footer = document.querySelector('footer.footer');
+  if (!footer || !footer.parentNode) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'gallery-detail__back-wrap';
+  const a = document.createElement('a');
+  a.href = new URL('../index.html', window.location.href).href;
+  a.className = 'nav-button gallery-detail__back';
+  a.textContent = 'Back';
+  a.setAttribute('aria-label', 'Back to gallery');
+  wrap.appendChild(a);
+  footer.parentNode.insertBefore(wrap, footer);
+}
+
 /** Music tile: press the icon to play/pause (gallery detail page). */
 function setupGalleryAudioSlots() {
   document.querySelectorAll('.gallery-audio-slot').forEach((slot) => {
@@ -186,6 +291,8 @@ function setupGalleryAudioSlots() {
   });
 }
 
+registerGalleryScrollRestoreOnPageshow();
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
@@ -193,6 +300,9 @@ if (document.readyState === 'loading') {
     setupHyperlinks();
     setupGalleryMidnightStamp();
     setupGalleryAudioSlots();
+    setupGalleryDetailBackButton();
+    setupGalleryScrollRestore();
+    tryRestoreGalleryScrollOnIndex();
   });
 } else {
   setupLondonClock();
@@ -200,4 +310,7 @@ if (document.readyState === 'loading') {
   setupHyperlinks();
   setupGalleryMidnightStamp();
   setupGalleryAudioSlots();
+  setupGalleryDetailBackButton();
+  setupGalleryScrollRestore();
+  tryRestoreGalleryScrollOnIndex();
 }
