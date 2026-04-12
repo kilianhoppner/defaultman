@@ -504,7 +504,7 @@ body {
 /* Portrait asset: square aspect-ratio from .gallery img would letterbox it tiny; use natural ratio */
 .gallery img.vulnerability {
   --img-max-height: 100%;
-  --img-max-width: 60%;
+  --img-max-width: 70%;
   aspect-ratio: auto;
 }
 .gallery img.valerie { --img-max-height: 35%; }
