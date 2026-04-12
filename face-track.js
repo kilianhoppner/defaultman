@@ -19,8 +19,26 @@
 
   /** Matches gallery mobile breakpoint in style.css — larger box on narrow viewports. */
   const MOBILE_MAX_WIDTH = 768;
+
+  function onGalleryDetail() {
+    return Boolean(slot.closest('main.gallery-detail'));
+  }
+
   function faceBoxFraction() {
-    return window.innerWidth <= MOBILE_MAX_WIDTH ? 0.44 : 0.34;
+    if (window.innerWidth <= MOBILE_MAX_WIDTH) {
+      return onGalleryDetail() ? 0.75 : 0.44;
+    }
+    return onGalleryDetail() ? 0.65 : 0.34;
+  }
+
+  /** Border scales with box edge length on gallery detail; index uses stylesheet 4px. */
+  function applyOutlineBorder(size) {
+    if (onGalleryDetail()) {
+      const px = Math.max(5, Math.min(16, Math.round(size * 0.045)));
+      outline.style.borderWidth = `${px}px`;
+    } else {
+      outline.style.borderWidth = '';
+    }
   }
 
   function placeFallbackBox(W, H) {
@@ -32,6 +50,7 @@
     outline.style.top = `${y}px`;
     outline.style.width = `${size}px`;
     outline.style.height = `${size}px`;
+    applyOutlineBorder(size);
   }
 
   function clampBox(b, W, H) {
@@ -96,6 +115,7 @@
     outline.style.top = `${c.y}px`;
     outline.style.width = `${size}px`;
     outline.style.height = `${size}px`;
+    applyOutlineBorder(size);
   }
 
   function loadScript(src) {

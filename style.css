@@ -30,7 +30,7 @@ body {
   font-family: "Diatype";
   font-weight: 400; 
   font-size: 1.6em;
-  color: #0000ff;
+  color: #000000;
   line-height: 1.2;
 }
 
@@ -44,7 +44,7 @@ body {
 .hyperlink,
 .hyperlink:visited,
 .hyperlink:active {
-  color: inherit;
+  color: #0000ff;
   text-decoration: underline;
 }
 
@@ -88,6 +88,17 @@ body {
   text-align: right;
 }
 
+/* Desktop: fixed slot so the top bar height/width doesn’t change when the clock is position:fixed while expanded */
+@media (min-width: 769px) {
+  .time {
+    width: 75px;
+    height: 75px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    justify-content: flex-end;
+  }
+}
+
 .clock {
   position: relative;
   width: 75px;
@@ -97,9 +108,9 @@ body {
   background-color: #ffffff;
   transform: scale(1.2);
   transform-origin: center;
+  /* Like .nav-button depth, but no outer 1px ring (avoids grey halo outside black border) */
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
     0 4px 16px rgba(0, 0, 0, 0.1);
   transition:
     box-shadow var(--nav-frost-dur) var(--nav-frost-ease),
@@ -108,8 +119,7 @@ body {
 
 .clock:hover {
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
     0 6px 22px rgba(0, 0, 0, 0.12);
   transform: scale(1.2) translateY(-2px);
 }
@@ -117,9 +127,8 @@ body {
 .clock:active {
   transform: scale(1.2) translateY(0);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.1),
-    inset 0 2px 8px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .clock-hand {
@@ -160,6 +169,51 @@ body {
   transform: translate(-50%, -50%);
 }
 
+/* Desktop: tap clock for instant enlarged view in viewport centre (no expand transition). No dim overlay. */
+@media (min-width: 769px) {
+  .clock {
+    cursor: pointer;
+    transform-origin: center center;
+    transform: translate3d(0, 0, 0) scale(1.2);
+    /* Same timing as .nav-button for hover nudge; expand/collapse disables transition in JS */
+    transition:
+      box-shadow var(--nav-frost-dur) var(--nav-frost-ease),
+      transform var(--nav-frost-dur) var(--nav-frost-ease);
+  }
+
+  .clock:hover:not(.clock--expanded) {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      0 6px 22px rgba(0, 0, 0, 0.12);
+    transform: translate3d(0, -2px, 0) scale(1.2);
+  }
+
+  .clock:active:not(.clock--expanded) {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translate3d(0, 0, 0) scale(1.2);
+  }
+
+  .clock.clock--expanded {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 3000;
+    width: 75px;
+    height: 75px;
+    margin: 0;
+    transform: translate3d(-50%, -50%, 0) scale(1.2) scale(var(--clock-scale, 5));
+    transform-origin: center center;
+    transition: none !important;
+  }
+
+  .clock.clock--expanded:hover,
+  .clock.clock--expanded:active {
+    transform: translate3d(-50%, -50%, 0) scale(1.2) scale(var(--clock-scale, 5));
+  }
+}
+
 /* Frosted glass — cool blue-grey (same over white and yellow bands) */
 .nav-button {
   font-family: inherit;
@@ -186,7 +240,7 @@ body {
       rgba(218, 226, 242, 0.453) 45%,
       rgba(205, 216, 234, 0.127) 100%
     ),
-    rgba(113, 127, 154, 0.46);
+    rgba(162, 162, 162, 0.46);
   backdrop-filter: blur(20px) saturate(2.5);
   -webkit-backdrop-filter: blur(20px) saturate(2.5);
   box-shadow:
@@ -251,7 +305,7 @@ body {
 }
 
 .profile-content p.section-heading {
-  color: #003cff;
+  color: #000000;
   background-color: rgb(255, 255, 0);
   display: inline-block;
   padding: 0.1em 0.22em 0.14em;
@@ -262,6 +316,293 @@ body {
 
 .profile-content p.section-heading:not(:first-child) {
   margin-top: 1.75em;
+}
+
+/* Detail pages: center in the visible viewport. min-height is required or main collapses to image height
+   and justify-content:center has no effect (looks “stuck to the top”). Does not rely on :has(). */
+:root {
+  /* Used in min-height calc; nudges vertical center slightly when increased */
+  --gallery-detail-chrome: 12rem;
+  /* Caps for artwork on gallery-pages (detail views) */
+  --gallery-detail-art-max-w: 960px;
+  --gallery-detail-art-max-h: 880px;
+  /* Shared bounds for images, iframes, custom tiles, audio — one system for all detail media */
+  --gallery-detail-media-min-w: min(280px, 92vw);
+  --gallery-detail-media-min-h: min(280px, 42vh);
+  --gallery-detail-media-max-w: min(88vw, var(--gallery-detail-art-max-w));
+  --gallery-detail-media-max-h: min(68vh, var(--gallery-detail-art-max-h));
+}
+
+main.gallery-detail {
+  display: flex;
+  flex-direction: column;
+  /* Stretch so .profile-content uses the same width and left margin as on bio.html */
+  align-items: stretch;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: min(100%, 320px);
+  margin-left: auto;
+  margin-right: auto;
+  /* Less padding above than below so centered art sits slightly higher under the nav */
+  padding: clamp(6px, 1.2vw, 14px) clamp(16px, 3vw, 32px) clamp(22px, 3.5vw, 44px);
+}
+
+/*
+ * First screen = artwork + title/year only; methodology / description / references scroll in below.
+ */
+.gallery-detail__hero {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: calc(100svh - var(--gallery-detail-chrome));
+  min-height: calc(100dvh - var(--gallery-detail-chrome));
+}
+
+.gallery-detail__hero .gallery-detail__stage {
+  flex: 1 1 auto;
+  min-height: min(72vh, calc(100svh - var(--gallery-detail-chrome) - 4rem));
+  min-height: min(72vh, calc(100dvh - var(--gallery-detail-chrome) - 4rem));
+}
+
+/* Extra space between image (stage) and title line */
+.gallery-detail__headline.profile-content {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: clamp(2rem, 6vw, 3.5rem);
+}
+
+/* Flush to headline when scrolling; keep bottom margin like bio */
+.gallery-detail__details.profile-content {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Hero band: centers artwork; prose sits below and scrolls with the page */
+.gallery-detail__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: min(72vh, calc(100svh - var(--gallery-detail-chrome) - 4rem));
+  min-height: min(72vh, calc(100dvh - var(--gallery-detail-chrome) - 4rem));
+  flex-shrink: 0;
+}
+
+main.gallery-detail ~ footer.footer {
+  margin-top: 0;
+}
+
+.gallery-detail__image {
+  display: block;
+  max-width: var(--gallery-detail-media-max-w);
+  max-height: var(--gallery-detail-media-max-h);
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  flex-shrink: 0;
+}
+
+.gallery-detail__stage.gallery-detail--spring3d {
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Same layout footprint as .gallery-detail__image so headline lines up with other detail pages */
+.gallery-detail__iframe-spring {
+  box-sizing: border-box;
+  display: block;
+  flex-shrink: 0;
+  width: min(100%, var(--gallery-detail-media-max-w));
+  max-width: var(--gallery-detail-media-max-w);
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+  max-height: var(--gallery-detail-media-max-h);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border: 0;
+}
+
+/* Visual size only — layout box matches detail images above */
+.gallery-detail__stage.gallery-detail--spring3d .gallery-detail__iframe-spring {
+  transform: scale(1.82);
+  transform-origin: center center;
+}
+
+/*
+ * The iframe’s white background lives inside the embedded 3D page (this site can’t remove it).
+ * Scaling can make that layer paint over the title / description — keep prose above the stage.
+ */
+.gallery-detail__hero:has(.gallery-detail--spring3d) {
+  position: relative;
+}
+
+.gallery-detail__hero:has(.gallery-detail--spring3d) .gallery-detail__stage {
+  position: relative;
+  z-index: 0;
+}
+
+.gallery-detail__hero:has(.gallery-detail--spring3d) .gallery-detail__headline.profile-content {
+  position: relative;
+  z-index: 2;
+}
+
+main.gallery-detail:has(.gallery-detail--spring3d) {
+  position: relative;
+}
+
+main.gallery-detail:has(.gallery-detail--spring3d) .gallery-detail__details.profile-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Weather room on detail view: horizontal rectangle (smaller than default tile on index). */
+.gallery-detail .gallery-weatherroom {
+  --img-max-width: 82%;
+  --pdf-orange: #ff7300;
+  --pdf-blue: #0033ff;
+  --weatherroom-scale: 1.15;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(min(100%, var(--img-max-width, 100%)), min(72vw, 380px));
+  min-width: min(220px, 85vw);
+  aspect-ratio: 11 / 8.5;
+  max-height: none;
+  height: auto;
+  justify-self: center;
+  align-self: center;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--pdf-orange);
+  transform: scale(var(--weatherroom-scale));
+  transform-origin: center center;
+  transition: transform 180ms ease;
+  flex-shrink: 0;
+}
+
+.gallery-detail .gallery-weatherroom::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pdf-blue);
+  opacity: 0;
+  animation: gallery-weatherroom-fill 12s ease-in-out infinite;
+}
+
+/* Detail views: no hover scale — shared .gallery rules still match facetrack/midnight sections */
+main.gallery-detail .gallery .gallery-midnight-time:hover {
+  transform: none;
+}
+
+main.gallery-detail .gallery .face-track-slot:hover .face-track-outline {
+  transform: scale(1);
+}
+
+/* Detail page: larger midnight clock (still centered in tile; headline copy unchanged) */
+main.gallery-detail .gallery .gallery-midnight-time {
+  font-size: clamp(3.1rem, 15vw, 6.75rem);
+}
+
+/* Single-item gallery rows on detail pages (face, midnight). */
+.gallery.facetrack-page-single,
+.gallery.midnight-page-single {
+  grid-template-columns: minmax(min(260px, 88vw), min(88vw, 440px));
+  justify-content: center;
+  justify-items: center;
+  align-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: min(100%, 320px);
+  max-width: none;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(6px, 1.2vw, 14px) clamp(16px, 3vw, 32px) clamp(22px, 3.5vw, 44px);
+  min-height: calc(100dvh - var(--gallery-detail-chrome));
+  min-height: calc(100svh - var(--gallery-detail-chrome));
+}
+
+/* Face / midnight detail: stage provides vertical band; section no longer fills the viewport */
+.gallery-detail__stage .gallery.facetrack-page-single,
+.gallery-detail__stage .gallery.midnight-page-single {
+  min-height: auto;
+  margin: 0;
+}
+
+section.gallery.facetrack-page-single ~ footer.footer,
+section.gallery.midnight-page-single ~ footer.footer {
+  margin-top: 0;
+}
+
+.gallery.facetrack-page-single .face-track-slot,
+.gallery.midnight-page-single .gallery-midnight-tile {
+  width: 100%;
+  max-width: min(88vw, 440px);
+  min-width: min(260px, 88vw);
+  min-height: min(280px, 42vh);
+}
+
+/* Detail page: same min/max system as .gallery-detail__image */
+.gallery-detail__stage .gallery.facetrack-page-single .face-track-slot,
+.gallery-detail__stage .gallery.midnight-page-single .gallery-midnight-tile {
+  max-width: var(--gallery-detail-media-max-w);
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --gallery-detail-chrome: 15.25rem;
+    --gallery-detail-media-min-w: min(220px, 88vw);
+    --gallery-detail-media-min-h: min(220px, 32vh);
+  }
+
+  /* Gallery detail on phone: no nav / clock — only work, copy, footer */
+  body:has(main.gallery-detail) {
+    --gallery-detail-chrome: 0rem;
+  }
+
+  body:has(main.gallery-detail) .top-bar {
+    display: none;
+  }
+
+  main.gallery-detail {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-top: max(12px, env(safe-area-inset-top, 0px));
+    padding-bottom: clamp(22px, 3.5vw, 44px);
+  }
+
+  .gallery.facetrack-page-single,
+  .gallery.midnight-page-single {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* Detail media bounds use --gallery-detail-media-* from :root in this block */
+
+  .gallery.facetrack-page-single,
+  .gallery.midnight-page-single {
+    grid-template-columns: minmax(min(220px, 88vw), min(88vw, 440px));
+  }
+
+  /* Index grid tiles: tighter mins on small screens (detail uses .gallery-detail__stage override) */
+  .gallery.facetrack-page-single .face-track-slot,
+  .gallery.midnight-page-single .gallery-midnight-tile {
+    min-width: min(220px, 88vw);
+    min-height: min(220px, 32vh);
+  }
+}
+
+/* Wrap gallery thumbnails: link doesn’t affect grid layout */
+.gallery > a.gallery-item-link {
+  display: contents;
 }
 
 
@@ -316,7 +657,8 @@ body {
 .gallery img.cable { --img-max-height: 55%; --img-rotate: 0.5deg; }
 .gallery .face-track-slot,
 .gallery .gallery-iframe-slot,
-.gallery .gallery-audio-slot {
+.gallery .gallery-audio-slot,
+.gallery-detail__stage .gallery-audio-slot {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -330,7 +672,8 @@ body {
 }
 
 .gallery .gallery-iframe-slot,
-.gallery .gallery-audio-slot {
+.gallery .gallery-audio-slot,
+.gallery-detail__stage .gallery-audio-slot {
   max-height: var(--img-max-height, 100%);
   max-width: var(--img-max-width, 100%);
 }
@@ -348,7 +691,20 @@ body {
   display: block;
 }
 
-.gallery .gallery-audio-slot {
+/* Full-tile navigation overlay (face + 3D preview; sits above iframe). */
+.gallery .gallery-tile-overlay-link {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+}
+
+.gallery .gallery-iframe-slot--with-overlay iframe {
+  pointer-events: none;
+}
+
+.gallery .gallery-audio-slot,
+.gallery-detail__stage .gallery-audio-slot {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -358,7 +714,8 @@ body {
 }
 
 /* Hidden player */
-.gallery .gallery-audio-slot .gallery-audio {
+.gallery .gallery-audio-slot .gallery-audio,
+.gallery-detail__stage .gallery-audio-slot .gallery-audio {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -372,7 +729,8 @@ body {
   pointer-events: none;
 }
 
-.gallery .gallery-audio-visual {
+.gallery .gallery-audio-visual,
+.gallery-detail__stage .gallery-audio-visual {
   position: relative;
   display: flex;
   align-items: center;
@@ -392,18 +750,21 @@ body {
   pointer-events: none;
 }
 
+/* Index grid only: zoom the music tile control on hover/focus (detail page: no zoom — play/pause only) */
 .gallery .gallery-audio-visual:has(.gallery-audio-icon:hover),
 .gallery .gallery-audio-visual:focus-visible {
   transform: scale(1.26);
 }
 
-.gallery .gallery-audio-visual:focus-visible {
+.gallery .gallery-audio-visual:focus-visible,
+.gallery-detail__stage .gallery-audio-visual:focus-visible {
   outline: 2px solid #003cff;
   outline-offset: 4px;
 }
 
 /* Hover / focus: centered play-pause disc (synced via .is-playing + [hidden] on glyphs) */
-.gallery .gallery-audio-overlay {
+.gallery .gallery-audio-overlay,
+.gallery-detail__stage .gallery-audio-overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -416,11 +777,14 @@ body {
 }
 
 .gallery .gallery-audio-visual:has(.gallery-audio-icon:hover) .gallery-audio-overlay,
-.gallery .gallery-audio-visual:focus-visible .gallery-audio-overlay {
+.gallery .gallery-audio-visual:focus-visible .gallery-audio-overlay,
+.gallery-detail__stage .gallery-audio-visual:has(.gallery-audio-icon:hover) .gallery-audio-overlay,
+.gallery-detail__stage .gallery-audio-visual:focus-visible .gallery-audio-overlay {
   opacity: 1;
 }
 
-.gallery .gallery-audio-overlay-circle {
+.gallery .gallery-audio-overlay-circle,
+.gallery-detail__stage .gallery-audio-overlay-circle {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -438,16 +802,30 @@ body {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
-.gallery .gallery-audio-overlay-circle svg {
+.gallery .gallery-audio-overlay-circle svg,
+.gallery-detail__stage .gallery-audio-overlay-circle svg {
   flex-shrink: 0;
   display: block;
 }
 
-.gallery .gallery-audio-overlay-circle svg[hidden] {
+.gallery .gallery-audio-overlay-circle svg[hidden],
+.gallery-detail__stage .gallery-audio-overlay-circle svg[hidden] {
   display: none;
 }
 
-.gallery .gallery-audio-icon {
+/* Music detail: larger play/pause control than index grid */
+.gallery-detail__stage .gallery-audio-overlay-circle {
+  width: clamp(40px, 28%, 58px);
+  border-width: 2px;
+}
+
+.gallery-detail__stage .gallery-audio-overlay-circle svg {
+  width: 22px;
+  height: 22px;
+}
+
+.gallery .gallery-audio-icon,
+.gallery-detail__stage .gallery-audio-icon {
   display: block;
   box-sizing: border-box;
   width: auto;
@@ -464,8 +842,25 @@ body {
   pointer-events: auto;
 }
 
-.gallery img.gallery-audio-icon:hover {
+.gallery img.gallery-audio-icon:hover,
+.gallery-detail__stage img.gallery-audio-icon:hover {
   transform: none;
+}
+
+/* Music detail: same play/pause overlay as gallery grid; box matches other detail media */
+.gallery-detail__stage .gallery-audio-slot {
+  --img-max-height: 88%;
+  --img-max-width: 96%;
+  max-height: var(--gallery-detail-media-max-h);
+  max-width: var(--gallery-detail-media-max-w);
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+}
+
+.gallery-detail__stage .gallery-audio-visual {
+  width: min(88%, min(24rem, var(--gallery-detail-media-max-w)));
+  max-width: min(88%, var(--gallery-detail-media-max-w));
+  max-height: min(88%, var(--gallery-detail-media-max-h));
 }
 
 /* Hover grows only the outline, not the whole tile (face box is fixed size until then). */
@@ -504,7 +899,7 @@ body {
 /* Portrait asset: square aspect-ratio from .gallery img would letterbox it tiny; use natural ratio */
 .gallery img.vulnerability {
   --img-max-height: 100%;
-  --img-max-width: 70%;
+  --img-max-width: 60%;
   aspect-ratio: auto;
 }
 .gallery img.valerie { --img-max-height: 35%; }
@@ -525,9 +920,8 @@ body {
 .gallery img.spinebeam { --img-max-height: 55%; }
 .gallery img.sketchhouse { --img-max-height: 95%; }
 .gallery img.steamroller { --img-max-height: 55%; }
-/* Weather room: orange ↔ blue crossfade. Tweak size via --weatherroom-scale (1 = default). */
+/* Weather room: orange ↔ blue crossfade (horizontal Letter-style rectangle). */
 .gallery .gallery-weatherroom {
-  --img-max-height: 65%;
   --img-max-width: 90%;
   --pdf-orange: #ff7300;
   --pdf-blue: #0033ff;
@@ -535,8 +929,8 @@ body {
   box-sizing: border-box;
   width: 100%;
   max-width: min(100%, var(--img-max-width, 100%));
-  aspect-ratio: 1 / 1;
-  max-height: var(--img-max-height, 100%);
+  aspect-ratio: 11 / 8.5;
+  max-height: none;
   height: auto;
   justify-self: center;
   align-self: center;
@@ -616,6 +1010,27 @@ body {
 }
 
 /* Recycling-style arrows (gallery/arrows.png): infinite rotation around centre */
+.gallery .gallery-arrow-spin__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.gallery-detail__stage .gallery-arrow-spin__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Index grid: % max-heights resolve against the grid cell */
 .gallery .gallery-arrow-spin {
   --img-max-height: 68%;
   display: flex;
@@ -631,6 +1046,24 @@ body {
   transition: transform 180ms ease;
 }
 
+/* Detail page: square frame for recycling arrows (icon scales inside — see __img) */
+.gallery-detail__stage .gallery-arrow-spin {
+  --img-max-height: 88%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: min(88vw, min(78vmin, 640px));
+  max-width: min(88vw, min(78vmin, 640px));
+  aspect-ratio: 1 / 1;
+  max-height: min(66vh, 640px);
+  min-width: min(240px, 84vw);
+  min-height: 0;
+  flex-shrink: 0;
+  margin: 0 auto;
+  transition: transform 180ms ease;
+}
+
 .gallery .gallery-arrow-spin:hover {
   transform: scale(1.26);
 }
@@ -641,6 +1074,18 @@ body {
   height: auto;
   max-width: min(88%, 11rem);
   max-height: var(--img-max-height, 100%);
+  aspect-ratio: auto;
+  object-fit: contain;
+  transform-origin: center center;
+  animation: gallery-arrow-spin 20s linear infinite;
+}
+
+.gallery-detail__stage .gallery-arrow-spin__img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(90%, 22rem);
+  max-height: var(--img-max-height, 88%);
   aspect-ratio: auto;
   object-fit: contain;
   transform-origin: center center;
@@ -669,7 +1114,17 @@ body {
 .gallery img.jesusisgay { --img-max-height: 65%; }
 .gallery img.extraordinarybeauty { --img-max-height: 65%; }
 .gallery img.upyourass { --img-max-height: 75%; }
-.gallery .gallery-audio-slot { --img-max-height: 75%; }
+/* Smaller than former 11rem cap — index grid only */
+.gallery img.music {
+  --img-max-height: 75%;
+  width: auto;
+  height: auto;
+  max-width: min(58%, 6rem);
+  max-height: min(58%, 6rem);
+  object-fit: contain;
+  justify-self: center;
+  align-self: center;
+}
 .gallery img.laptop { --img-max-height: 85%; }
 .gallery img.scissors { --img-max-height: 70%; }
 
@@ -710,17 +1165,15 @@ body {
   .clock:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
       0 6px 22px rgba(0, 0, 0, 0.12);
   }
 
   .clock:active {
     transform: translateY(0);
     box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.1),
-      inset 0 2px 8px rgba(0, 0, 0, 0.12),
-      0 2px 8px rgba(0, 0, 0, 0.08);
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 4px 16px rgba(0, 0, 0, 0.1);
   }
 
   .hour-hand {
@@ -776,6 +1229,11 @@ body {
     box-sizing: border-box;
   }
 
+  .gallery img.music {
+    max-width: min(88%, 11rem);
+    max-height: min(88%, 11rem);
+  }
+
   .footer {
     padding-left: 16px;
     padding-right: 16px;
@@ -784,6 +1242,10 @@ body {
 
   .gallery .gallery-midnight-time {
     font-size: clamp(2.25rem, 16vw, 4rem);
+  }
+
+  main.gallery-detail .gallery .gallery-midnight-time {
+    font-size: clamp(4.75rem, 34vw, 8rem);
   }
 
   /*
@@ -804,7 +1266,12 @@ body {
     --weatherroom-scale: 0.78;
   }
 
-  .gallery .gallery-audio-visual {
+  .gallery-detail .gallery-weatherroom {
+    --weatherroom-scale: 1.08;
+  }
+
+  .gallery .gallery-audio-visual,
+  .gallery-detail__stage .gallery-audio-visual {
     width: min(77%, 9.5rem);
     max-width: min(77%, var(--img-max-width, 100%));
   }
@@ -813,7 +1280,19 @@ body {
     --img-max-height: 78%;
   }
 
+  .gallery-detail__stage .gallery-arrow-spin {
+    --img-max-height: 86%;
+    width: min(86vw, min(82vmin, 500px));
+    max-width: min(86vw, min(82vmin, 500px));
+    max-height: min(58vh, 500px);
+  }
+
   .gallery .gallery-arrow-spin__img {
     max-width: min(92%, 12rem);
   }
+
+  .gallery-detail__stage .gallery-arrow-spin__img {
+    max-width: min(90%, 17rem);
+  }
+
 }

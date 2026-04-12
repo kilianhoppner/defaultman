@@ -29,9 +29,90 @@ function setupLondonClock() {
   setInterval(updateLondonClock, 1000);
 }
 
+/**
+ * Desktop (≥769px): click the clock to show it enlarged in the viewport centre; click again or Escape to close.
+ * Hover uses the same transform transition as nav buttons; expand/collapse snap instantly (transition cleared in JS).
+ * Scale ~78% of shorter side. No dim overlay.
+ */
+function setupClockDesktopExpand() {
+  const clockEl = document.getElementById('londonClock');
+  if (!clockEl) return;
 
+  const mq = window.matchMedia('(min-width: 769px)');
 
+  function computeScale() {
+    const v = Math.min(window.innerWidth, window.innerHeight);
+    const targetDiameter = v * 0.78;
+    const baseVisual = 75 * 1.2;
+    return Math.min(12, Math.max(3, targetDiameter / baseVisual));
+  }
 
+  /** Avoid animating transform when toggling expanded state (hover nudge still uses CSS transition). */
+  function withNoTransition(run) {
+    clockEl.style.setProperty('transition', 'none');
+    run();
+    void clockEl.offsetWidth;
+    clockEl.style.removeProperty('transition');
+  }
+
+  function collapse() {
+    withNoTransition(() => {
+      clockEl.classList.remove('clock--expanded');
+      clockEl.style.removeProperty('--clock-scale');
+      clockEl.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function expand() {
+    withNoTransition(() => {
+      clockEl.style.setProperty('--clock-scale', String(computeScale()));
+      clockEl.classList.add('clock--expanded');
+      clockEl.setAttribute('aria-expanded', 'true');
+    });
+  }
+
+  function toggle(e) {
+    if (!mq.matches) return;
+    if (e) e.stopPropagation();
+    if (clockEl.classList.contains('clock--expanded')) {
+      collapse();
+    } else {
+      expand();
+    }
+  }
+
+  clockEl.setAttribute('role', 'button');
+  clockEl.tabIndex = 0;
+  clockEl.setAttribute('aria-expanded', 'false');
+
+  clockEl.addEventListener('click', toggle);
+
+  clockEl.addEventListener('keydown', (e) => {
+    if (!mq.matches) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    toggle(e);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mq.matches && clockEl.classList.contains('clock--expanded')) {
+      collapse();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (mq.matches && clockEl.classList.contains('clock--expanded')) {
+      clockEl.style.setProperty('--clock-scale', String(computeScale()));
+    }
+    if (!mq.matches && clockEl.classList.contains('clock--expanded')) {
+      collapse();
+    }
+  });
+
+  mq.addEventListener('change', () => {
+    if (!mq.matches) collapse();
+  });
+}
 
 // Open all links with class "hyperlink" in a new tab.
 function setupHyperlinks() {
@@ -57,7 +138,7 @@ function setupGalleryMidnightStamp() {
   window.setInterval(tick, 1000);
 }
 
-/** Music tile: press the icon to play/pause. */
+/** Music tile: press the icon to play/pause (gallery detail page). */
 function setupGalleryAudioSlots() {
   document.querySelectorAll('.gallery-audio-slot').forEach((slot) => {
     const audio = slot.querySelector('audio');
@@ -108,12 +189,14 @@ function setupGalleryAudioSlots() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
+    setupClockDesktopExpand();
     setupHyperlinks();
     setupGalleryMidnightStamp();
     setupGalleryAudioSlots();
   });
 } else {
   setupLondonClock();
+  setupClockDesktopExpand();
   setupHyperlinks();
   setupGalleryMidnightStamp();
   setupGalleryAudioSlots();
