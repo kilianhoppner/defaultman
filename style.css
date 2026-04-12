@@ -186,9 +186,9 @@ body {
       rgba(218, 226, 242, 0.453) 45%,
       rgba(205, 216, 234, 0.127) 100%
     ),
-    rgba(88, 98, 118, 0.46);
-  backdrop-filter: blur(20px) saturate(2.2);
-  -webkit-backdrop-filter: blur(20px) saturate(2.2);
+    rgba(113, 127, 154, 0.46);
+  backdrop-filter: blur(20px) saturate(2.5);
+  -webkit-backdrop-filter: blur(20px) saturate(2.5);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
@@ -501,7 +501,12 @@ body {
   transform: scale(1.32);
 }
 
-.gallery img.vulnerability { --img-max-height: 100%; --img-max-width: 70%; }
+/* Portrait asset: square aspect-ratio from .gallery img would letterbox it tiny; use natural ratio */
+.gallery img.vulnerability {
+  --img-max-height: 100%;
+  --img-max-width: 60%;
+  aspect-ratio: auto;
+}
 .gallery img.valerie { --img-max-height: 35%; }
 .gallery img.societyfor { --img-max-height: 65%; }
 .gallery img.ilovedaddy { --img-max-height: 40%; --img-rotate: 0.5deg; }
@@ -669,11 +674,25 @@ body {
 .gallery img.scissors { --img-max-height: 70%; }
 
 @media (max-width: 768px) {
+  body {
+    font-size: 1.3em;
+    margin: 0;
+    padding: 0 0 24px;
+    line-height: 1.38;
+  }
+
+  /* First screen: clock + nav centered; gallery / bio scroll in below */
   .top-bar {
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 14px;
     position: static;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    box-sizing: border-box;
+    padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(20px, env(safe-area-inset-bottom, 0px));
   }
 
   .time {
@@ -735,12 +754,32 @@ body {
   .profile-content {
     margin-left: 16px;
     margin-right: 16px;
+    margin-top: 0;
+    padding-top: 20px;
+    margin-bottom: 52px;
     max-width: none;
+  }
+
+  .profile-content p {
+    margin: 0 0 0.72em 0;
+  }
+
+  .profile-content p.section-heading:not(:first-child) {
+    margin-top: 1.45em;
   }
 
   .gallery {
     gap: 8px;
     grid-template-columns: 1fr;
+    margin-top: 0;
+    padding: 20px 16px 0;
+    box-sizing: border-box;
+  }
+
+  .footer {
+    padding-left: 16px;
+    padding-right: 16px;
+    box-sizing: border-box;
   }
 
   .gallery .gallery-midnight-time {
@@ -752,7 +791,13 @@ body {
    * Adjust these first when something feels off on phones.
    */
   .gallery img.vulnerability {
-    --img-max-width: 88%;
+    --img-max-width: 60%;
+    aspect-ratio: auto;
+    max-height: none;
+    width: 100%;
+    height: auto;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .gallery .gallery-weatherroom {

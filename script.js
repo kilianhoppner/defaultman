@@ -41,73 +41,6 @@ function setupHyperlinks() {
   });
 }
 
-/**
- * Animated favicon: solid rectangle cycling the hue wheel, starting at yellow (#FFFF00 ≈ 60°).
- * rAF + frequent href commits (small ° per step) + slight diagonal HSL gradient to soften banding.
- * (The tab icon may still look stepped if the browser throttles redraws.)
- * Requires <link rel="icon" href="favicon/favicon.png"> (or any initial icon) in the document.
- */
-function setupRainbowFavicon() {
-  const link = document.querySelector('link[rel="icon"]');
-  if (!link) return;
-
-  const size = 32;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  const startHue = 60; // #FFFF00
-  /** Degrees per second (360 / huePerSecond ≈ seconds for one full cycle). */
-  const huePerSecond = 10;
-  /** Min ms between href commits; ~0.14°/step at 10°/s & 14ms (smaller steps = smoother). */
-  const minMsBetweenFaviconCommits = 14;
-  /** Diagonal gradient span in hue (°); softens flat fills so shifts read less “stepped”. */
-  const hueGradientSpread = 1.2;
-
-  const t0 = performance.now();
-  let lastCommit = -Infinity;
-  let raf = 0;
-
-  function commitFavicon() {
-    link.href = canvas.toDataURL('image/png');
-  }
-
-  function wrapHue(h) {
-    return ((h % 360) + 360) % 360;
-  }
-
-  function drawAtElapsed(elapsedSec) {
-    const hue = (startHue + elapsedSec * huePerSecond) % 360;
-    const g = ctx.createLinearGradient(0, 0, size, size);
-    g.addColorStop(0, `hsl(${wrapHue(hue - hueGradientSpread / 2)} 92% 52%)`);
-    g.addColorStop(1, `hsl(${wrapHue(hue + hueGradientSpread / 2)} 92% 52%)`);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, size, size);
-  }
-
-  function frame(now) {
-    const elapsed = (now - t0) / 1000;
-    drawAtElapsed(elapsed);
-
-    if (now - lastCommit >= minMsBetweenFaviconCommits) {
-      commitFavicon();
-      lastCommit = now;
-    }
-    raf = requestAnimationFrame(frame);
-  }
-
-  drawAtElapsed(0);
-  commitFavicon();
-  lastCommit = performance.now();
-  raf = requestAnimationFrame(frame);
-
-  window.addEventListener('pagehide', () => {
-    cancelAnimationFrame(raf);
-  });
-}
-
 /** Gallery tile: clock stuck in 23:59:00–23:59:59, looping forever (never midnight). */
 function setupGalleryMidnightStamp() {
   const timeEl = document.querySelector('.gallery-midnight-time');
@@ -175,14 +108,12 @@ function setupGalleryAudioSlots() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
-    setupRainbowFavicon();
     setupHyperlinks();
     setupGalleryMidnightStamp();
     setupGalleryAudioSlots();
   });
 } else {
   setupLondonClock();
-  setupRainbowFavicon();
   setupHyperlinks();
   setupGalleryMidnightStamp();
   setupGalleryAudioSlots();
