@@ -44,7 +44,21 @@
   <a href="gallery-pages/castration.html" class="gallery-item-link"><img src="gallery/castration.png" alt="castration anxiety"></a>
   <a href="gallery-pages/societyfor.html" class="gallery-item-link"><img src="gallery/societyfor.png" alt="society for cutting up men" class="societyfor"></a>
   <a href="gallery-pages/ilovedaddy.html" class="gallery-item-link"><img src="gallery/ilovedaddy.png" alt="i love daddy" class="ilovedaddy"></a>
-  <a href="gallery-pages/head.html" class="gallery-item-link"><img src="gallery/head.png" alt="head" class="head"></a>
+  <div class="gallery-iframe-slot gallery-head-3d gallery-iframe-slot--with-overlay" aria-label="Head 3D">
+    <a href="gallery-pages/head.html" class="gallery-tile-overlay-link" aria-label="Open Head"></a>
+    <model-viewer
+      class="gallery-head-3d__viewer"
+      src="gallery/head.glb"
+      alt="3D model of a head"
+      loading="lazy"
+      auto-rotate
+      rotation-per-second="22deg"
+      interaction-prompt="none"
+      shadow-intensity="0"
+      exposure="1"
+      camera-orbit="93deg 85deg auto"
+    ></model-viewer>
+  </div>
   <a href="gallery-pages/typeface.html" class="gallery-item-link"><img src="gallery/typeface.png" alt="typeface" class="typeface"></a>
   <a href="gallery-pages/tshirt.html" class="gallery-item-link"><img src="gallery/tshirt.png" alt="tshirt" class="tshirt"></a>
   <a href="gallery-pages/spinebeam.html" class="gallery-item-link"><img src="gallery/spinebeam.png" alt="spinebeam" class="spinebeam"></a>
@@ -87,6 +101,7 @@
   </div>
 </section>
 
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 <script src="script.js"></script>
 <script src="face-track.js"></script>
 
