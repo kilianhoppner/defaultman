@@ -397,8 +397,9 @@ main.gallery-detail ~ footer.footer {
   margin-top: 0;
 }
 
-/* Head detail page only: match calm gallery chrome — no frosted lift / clock nudge on hover */
-body:has(main.gallery-detail--head) .nav-button:hover {
+/* 3D detail pages (head, toilet roll): calm gallery chrome — no frosted lift / clock nudge on hover */
+body:has(main.gallery-detail--head) .nav-button:hover,
+body:has(main.gallery-detail--toiletroll) .nav-button:hover {
   transform: none;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.06),
@@ -406,7 +407,8 @@ body:has(main.gallery-detail--head) .nav-button:hover {
     0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-body:has(main.gallery-detail--head) .clock:hover {
+body:has(main.gallery-detail--head) .clock:hover,
+body:has(main.gallery-detail--toiletroll) .clock:hover {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
     0 4px 16px rgba(0, 0, 0, 0.1);
@@ -414,7 +416,8 @@ body:has(main.gallery-detail--head) .clock:hover {
 }
 
 @media (min-width: 769px) {
-  body:has(main.gallery-detail--head) .clock:hover:not(.clock--expanded) {
+  body:has(main.gallery-detail--head) .clock:hover:not(.clock--expanded),
+  body:has(main.gallery-detail--toiletroll) .clock:hover:not(.clock--expanded) {
     transform: translate3d(0, 0, 0) scale(1.2);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.42),
@@ -456,6 +459,23 @@ body:has(main.gallery-detail--head) .clock:hover {
 main.gallery-detail--head .gallery-detail__model-viewer {
   transform: scale(1.06);
   transform-origin: center center;
+}
+
+main.gallery-detail--toiletroll .gallery-detail__model-viewer.toiletroll-webgl-host {
+  position: relative;
+}
+
+.gallery-detail__stage .toiletroll-webgl-host .gallery-toiletroll-3d__viewer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-toiletroll-3d__viewer canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Head model-viewer: hide default load progress UI (bar + dim mask) */
@@ -742,7 +762,8 @@ section.gallery.midnight-page-single ~ footer.footer {
 }
 
 .gallery .gallery-iframe-slot iframe,
-.gallery .gallery-iframe-slot model-viewer {
+.gallery .gallery-iframe-slot model-viewer,
+.gallery .gallery-iframe-slot .gallery-toiletroll-3d__viewer {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -760,7 +781,8 @@ section.gallery.midnight-page-single ~ footer.footer {
 }
 
 .gallery .gallery-iframe-slot--with-overlay iframe,
-.gallery .gallery-iframe-slot--with-overlay model-viewer {
+.gallery .gallery-iframe-slot--with-overlay model-viewer,
+.gallery .gallery-iframe-slot--with-overlay .gallery-toiletroll-3d__viewer {
   pointer-events: none;
 }
 
@@ -1176,7 +1198,9 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery img.typeface { --img-max-height: 30%; }
 .gallery img.jesusisgay { --img-max-height: 65%; }
 .gallery img.extraordinarybeauty { --img-max-height: 65%; }
-.gallery img.upyourass { --img-max-height: 75%; }
+.gallery .gallery-toiletroll-3d {
+  --img-max-height: 75%;
+}
 /* Smaller than former 11rem cap — index grid only */
 .gallery img.music {
   --img-max-height: 75%;
