@@ -74,6 +74,11 @@ body {
   z-index: 1000;
 }
 
+/* Index: wraps clock + nav; display:contents on desktop keeps the old top-bar row layout */
+.top-bar__cluster {
+  display: contents;
+}
+
 .top-actions {
   display: flex;
   flex-direction: row;
@@ -397,6 +402,22 @@ main.gallery-detail ~ footer.footer {
   margin-top: 0;
 }
 
+/* White horse detail: slightly smaller than default detail media bounds */
+main.gallery-detail--whitehorse {
+  --gallery-detail-media-max-w: min(72vw, calc(var(--gallery-detail-art-max-w) * 0.78));
+  --gallery-detail-media-max-h: min(54vh, calc(var(--gallery-detail-art-max-h) * 0.78));
+  --gallery-detail-media-min-w: min(240px, 88vw);
+  --gallery-detail-media-min-h: min(220px, 36vh);
+}
+
+/* Men are from Mars — detail view: slightly smaller than default detail media */
+main.gallery-detail--menarefrommars {
+  --gallery-detail-media-max-w: min(68vw, calc(var(--gallery-detail-art-max-w) * 0.8));
+  --gallery-detail-media-max-h: min(52vh, calc(var(--gallery-detail-art-max-h) * 0.8));
+  --gallery-detail-media-min-w: min(220px, 88vw);
+  --gallery-detail-media-min-h: min(200px, 34vh);
+}
+
 /* 3D detail pages (head, toilet roll): calm gallery chrome — no frosted lift / clock nudge on hover */
 body:has(main.gallery-detail--head) .nav-button:hover,
 body:has(main.gallery-detail--toiletroll) .nav-button:hover {
@@ -443,6 +464,41 @@ body:has(main.gallery-detail--toiletroll) .clock:hover {
   flex-shrink: 0;
 }
 
+/* Same footprint as other detail media — matches index grid video tile */
+.gallery-detail__stage .gallery-detail__video-slot {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: min(100%, var(--gallery-detail-media-max-w));
+  max-width: var(--gallery-detail-media-max-w);
+  max-height: var(--gallery-detail-media-max-h);
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.gallery-detail__stage .gallery-detail__video-slot video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 1;
+}
+
+.gallery-detail__stage .gallery-detail__video-slot video.gallery-detail__video--active {
+  opacity: 1;
+  z-index: 2;
+  transition: none;
+}
+
 .gallery-detail__model-viewer {
   display: block;
   box-sizing: border-box;
@@ -457,15 +513,27 @@ body:has(main.gallery-detail--toiletroll) .clock:hover {
 }
 
 main.gallery-detail--head .gallery-detail__model-viewer {
-  transform: scale(1.06);
+  transform: scale(1.16);
   transform-origin: center center;
 }
 
-main.gallery-detail--toiletroll .gallery-detail__model-viewer.toiletroll-webgl-host {
+/* Toilet roll detail: WebGL only — matches index grid tile footprint (not a static PNG). */
+main.gallery-detail--toiletroll .gallery-detail__toiletroll-slot {
   position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: min(100%, var(--gallery-detail-media-max-w));
+  max-width: var(--gallery-detail-media-max-w);
+  max-height: min(75vh, var(--gallery-detail-media-max-h));
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: transparent;
 }
 
-.gallery-detail__stage .toiletroll-webgl-host .gallery-toiletroll-3d__viewer {
+main.gallery-detail--toiletroll .gallery-detail__toiletroll-slot .gallery-toiletroll-3d__viewer {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -736,6 +804,7 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery img.cable { --img-max-height: 55%; --img-rotate: 0.5deg; }
 .gallery .face-track-slot,
 .gallery .gallery-iframe-slot,
+.gallery .gallery-video-slot,
 .gallery .gallery-audio-slot,
 .gallery-detail__stage .gallery-audio-slot {
   position: relative;
@@ -751,14 +820,25 @@ section.gallery.midnight-page-single ~ footer.footer {
 }
 
 .gallery .gallery-iframe-slot,
+.gallery .gallery-video-slot,
 .gallery .gallery-audio-slot,
 .gallery-detail__stage .gallery-audio-slot {
   max-height: var(--img-max-height, 100%);
   max-width: var(--img-max-width, 100%);
 }
 
-.gallery .gallery-iframe-slot:hover {
+.gallery .gallery-iframe-slot:hover,
+.gallery .gallery-video-slot:hover {
   transform: scale(1.26);
+}
+
+.gallery .gallery-video-slot {
+  background: #fff;
+}
+
+.gallery .gallery-video-slot--whitehorse {
+  --img-max-height: 70%;
+  --img-max-width: 70%;
 }
 
 .gallery .gallery-iframe-slot iframe,
@@ -770,6 +850,27 @@ section.gallery.midnight-page-single ~ footer.footer {
   height: 100%;
   border: 0;
   display: block;
+}
+
+/* Incoming clip snaps on; only outgoing fades — avoids white slot showing through */
+.gallery .gallery-video-slot__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  z-index: 1;
+}
+
+.gallery .gallery-video-slot__video--active {
+  opacity: 1;
+  z-index: 2;
+  transition: none;
 }
 
 /* Full-tile navigation overlay (face + 3D preview; sits above iframe). */
@@ -966,7 +1067,10 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery .face-track-outline {
   position: absolute;
   box-sizing: border-box;
-  border: 4px solid #00ff41;
+  border-style: solid;
+  border-color: #00ff41;
+  /* Width set in face-track.js so grid + detail share the same stroke ratio at every size */
+  border-width: 3px;
   background: transparent;
   pointer-events: none;
   z-index: 1;
@@ -977,6 +1081,13 @@ section.gallery.midnight-page-single ~ footer.footer {
 
 .gallery .face-track-slot:hover .face-track-outline {
   transform: scale(1.32);
+}
+
+/* Matches face-track.js SUBTLE_TRACK_MAX_WIDTH — phone-only softer outline transition */
+@media (max-width: 600px) {
+  .gallery .face-track-outline {
+    transition: opacity 0.22s ease, transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
 }
 
 /* Portrait asset: square aspect-ratio from .gallery img would letterbox it tiny; use natural ratio */
@@ -1198,6 +1309,10 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery img.typeface { --img-max-height: 30%; }
 .gallery img.jesusisgay { --img-max-height: 65%; }
 .gallery img.extraordinarybeauty { --img-max-height: 65%; }
+.gallery img.menarefrommars {
+  --img-max-height: 65%;
+  --img-max-width: 100%;
+}
 .gallery .gallery-toiletroll-3d {
   --img-max-height: 75%;
 }
@@ -1214,6 +1329,90 @@ section.gallery.midnight-page-single ~ footer.footer {
 }
 .gallery img.laptop { --img-max-height: 85%; }
 .gallery img.scissors { --img-max-height: 70%; }
+
+/* Index only: hidden on desktop; shown on narrow viewports via JS + media query */
+.mobile-scroll-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .top-bar__cluster {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .mobile-scroll-hint:not([hidden]) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    width: 100%;
+    flex-shrink: 0;
+    padding-bottom: max(22px, env(safe-area-inset-bottom, 0px));
+    opacity: 1;
+    transition: opacity 0.45s ease;
+  }
+
+  .mobile-scroll-hint:not([hidden]).mobile-scroll-hint--faded {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-scroll-hint:not([hidden]) {
+      transition-duration: 0.2s;
+    }
+  }
+
+  .mobile-scroll-hint[hidden] {
+    display: none !important;
+  }
+
+  .mobile-scroll-hint__btn {
+    background: none;
+    border: none;
+    padding: 10px 14px;
+    margin: 0;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.38);
+    -webkit-tap-highlight-color: transparent;
+    line-height: 0;
+  }
+
+  .mobile-scroll-hint__btn:active {
+    opacity: 0.65;
+  }
+
+  .mobile-scroll-hint__icon {
+    display: block;
+    width: 48px;
+    height: 48px;
+    animation: mobile-scroll-hint-blink 1.55s ease-in-out infinite;
+  }
+
+  @keyframes mobile-scroll-hint-blink {
+    0%,
+    100% {
+      opacity: 0.32;
+    }
+    50% {
+      opacity: 0.82;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-scroll-hint__icon {
+      animation: none;
+      opacity: 0.52;
+    }
+  }
+}
 
 @media (max-width: 768px) {
   body {
@@ -1234,6 +1433,12 @@ section.gallery.midnight-page-single ~ footer.footer {
     width: 100%;
     box-sizing: border-box;
     padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Index (gallery): cluster grows and centers clock + nav; scroll hint stays at bottom of first screen */
+  body:has(.top-bar__cluster) .top-bar {
+    justify-content: flex-start;
+    gap: 0;
   }
 
   .time {
@@ -1363,22 +1568,22 @@ section.gallery.midnight-page-single ~ footer.footer {
   }
 
   .gallery .gallery-arrow-spin {
-    --img-max-height: 78%;
+    --img-max-height: 74%;
   }
 
   .gallery-detail__stage .gallery-arrow-spin {
-    --img-max-height: 86%;
-    width: min(86vw, min(82vmin, 500px));
-    max-width: min(86vw, min(82vmin, 500px));
-    max-height: min(58vh, 500px);
+    --img-max-height: 82%;
+    width: min(84vw, min(80vmin, 480px));
+    max-width: min(84vw, min(80vmin, 480px));
+    max-height: min(55vh, 480px);
   }
 
   .gallery .gallery-arrow-spin__img {
-    max-width: min(92%, 12rem);
+    max-width: min(92%, 11.25rem);
   }
 
   .gallery-detail__stage .gallery-arrow-spin__img {
-    max-width: min(90%, 17rem);
+    max-width: min(90%, 15.5rem);
   }
 
   body:has(main.gallery-detail) .gallery-detail__back-wrap {

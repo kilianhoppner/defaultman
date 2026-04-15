@@ -293,6 +293,217 @@ function setupGalleryAudioSlots() {
 
 registerGalleryScrollRestoreOnPageshow();
 
+/**
+ * Mobile index: soft blinking arrow under the nav; tap scrolls a short way.
+ * Fades out when the gallery enters view; fades back in when scrolled to top.
+ */
+function setupMobileGalleryScrollHint() {
+  const wrap = document.querySelector('.mobile-scroll-hint');
+  const btn = document.querySelector('.mobile-scroll-hint__btn');
+  const gallery = document.querySelector('section.gallery');
+  if (!wrap || !btn || !gallery) return;
+
+  const mq = window.matchMedia('(max-width: 768px)');
+  const FADED = 'mobile-scroll-hint--faded';
+
+  function update() {
+    if (!mq.matches) {
+      wrap.hidden = true;
+      wrap.classList.remove(FADED);
+      return;
+    }
+    const hasOverflow = document.documentElement.scrollHeight > window.innerHeight + 40;
+    if (!hasOverflow) {
+      wrap.hidden = true;
+      wrap.classList.remove(FADED);
+      return;
+    }
+    wrap.hidden = false;
+
+    const galleryTop = gallery.getBoundingClientRect().top;
+    const contentVisible = galleryTop < window.innerHeight * 0.88;
+    wrap.classList.toggle(FADED, contentVisible);
+  }
+
+  function onClick() {
+    const delta = Math.min(220, Math.max(100, window.innerHeight * 0.18));
+    window.scrollBy({ top: delta, behavior: 'smooth' });
+  }
+
+  btn.addEventListener('click', onClick);
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  mq.addEventListener('change', update);
+  window.addEventListener('load', update, { once: true });
+  update();
+}
+
+/** Single speed during crossfade + clip edges so the overlap stays smooth (same as pre–variable-rate). */
+const HORSE_RATE_CROSSFADE = 1.08;
+/** First half of the clip plays a touch faster; second half a touch slower. */
+const HORSE_RATE_FIRST_HALF = 1.1;
+const HORSE_RATE_SECOND_HALF = 0.97;
+
+/**
+ * Two stacked clips: next starts at 0 and snaps visible; previous fades out (no
+ * dual semi-transparent blend over the white tile).
+ */
+function setupHorseVideoSeamlessLoop() {
+  function initSlot(slot, activeClass) {
+    const videos = slot.querySelectorAll('video[src*="whitehorse"]');
+    if (videos.length < 2) return;
+
+    const CROSSFADE_SEC = 0.22;
+    const fadeMs = 220;
+
+    let activeIdx = 0;
+    let transitioning = false;
+    /** rAF loop — timeupdate is too sparse, so we’d often start the crossfade late and the seam feels choppy. */
+    let crossfadeMonitorId = null;
+
+    videos.forEach((v) => {
+      v.removeAttribute('loop');
+    });
+
+    function active() {
+      return videos[activeIdx];
+    }
+    function standby() {
+      return videos[1 - activeIdx];
+    }
+
+    function crossfadeWindowSec(dur) {
+      return Math.min(CROSSFADE_SEC, Math.max(0.04, dur * 0.28));
+    }
+
+    function applyPlaybackRateForVideo(v) {
+      const dur = v.duration;
+      if (!dur || Number.isNaN(dur)) return;
+      const t = v.currentTime;
+      const cf = crossfadeWindowSec(dur);
+      const nearEnd = t >= dur - cf || v.ended;
+      const nearStart = t <= cf;
+      let rate;
+      if (transitioning) {
+        rate = HORSE_RATE_CROSSFADE;
+      } else if (nearEnd || nearStart) {
+        rate = HORSE_RATE_CROSSFADE;
+      } else if (t < dur / 2) {
+        rate = HORSE_RATE_FIRST_HALF;
+      } else {
+        rate = HORSE_RATE_SECOND_HALF;
+      }
+      v.defaultPlaybackRate = rate;
+      v.playbackRate = rate;
+    }
+
+    function startCrossfadeMonitor() {
+      if (crossfadeMonitorId != null) return;
+      crossfadeMonitorId = requestAnimationFrame(crossfadeMonitorTick);
+    }
+
+    function crossfadeMonitorTick() {
+      crossfadeMonitorId = null;
+      const anyPlaying = videos.some((v) => !v.paused);
+      if (!anyPlaying && !transitioning) return;
+
+      if (!transitioning) {
+        const cur = active();
+        if (cur && !cur.paused) {
+          const dur = cur.duration;
+          if (dur && !Number.isNaN(dur)) {
+            const crossfade = crossfadeWindowSec(dur);
+            if (cur.currentTime >= dur - crossfade || cur.ended) {
+              armCrossfade();
+            }
+          }
+        }
+      }
+
+      if (videos.some((v) => !v.paused) || transitioning) {
+        crossfadeMonitorId = requestAnimationFrame(crossfadeMonitorTick);
+      }
+    }
+
+    function armCrossfade() {
+      if (transitioning) return;
+      const cur = active();
+      const next = standby();
+      const dur = cur.duration;
+      if (!dur || Number.isNaN(dur)) return;
+
+      const crossfade = crossfadeWindowSec(dur);
+      const nearEnd = cur.currentTime >= dur - crossfade || cur.ended;
+      if (!nearEnd) return;
+
+      transitioning = true;
+      next.currentTime = 0;
+      applyPlaybackRateForVideo(next);
+      const playPromise = next.play();
+      const swapLayers = () => {
+        requestAnimationFrame(() => {
+          next.classList.add(activeClass);
+          cur.classList.remove(activeClass);
+        });
+      };
+      const finish = () => {
+        if (typeof next.requestVideoFrameCallback === 'function') {
+          next.requestVideoFrameCallback(() => swapLayers());
+        } else {
+          swapLayers();
+        }
+        window.setTimeout(() => {
+          cur.pause();
+          cur.currentTime = 0;
+          activeIdx = 1 - activeIdx;
+          transitioning = false;
+          videos.forEach((el) => applyPlaybackRateForVideo(el));
+        }, fadeMs);
+      };
+      if (playPromise !== undefined) {
+        playPromise.then(finish).catch(() => {
+          transitioning = false;
+        });
+      } else {
+        finish();
+      }
+    }
+
+    videos.forEach((v, i) => {
+      v.addEventListener('timeupdate', () => {
+        applyPlaybackRateForVideo(v);
+      });
+      v.addEventListener('playing', () => {
+        startCrossfadeMonitor();
+      });
+      v.addEventListener('ended', () => {
+        if (i !== activeIdx || transitioning) return;
+        armCrossfade();
+      });
+    });
+
+    videos[0].classList.add(activeClass);
+    videos[1].classList.remove(activeClass);
+    videos.forEach((v) => {
+      applyPlaybackRateForVideo(v);
+      v.addEventListener('loadedmetadata', () => applyPlaybackRateForVideo(v), { once: true });
+    });
+
+    requestAnimationFrame(() => {
+      if (videos.some((video) => !video.paused)) {
+        startCrossfadeMonitor();
+      }
+    });
+  }
+
+  document.querySelectorAll('.gallery-video-slot').forEach((slot) => {
+    initSlot(slot, 'gallery-video-slot__video--active');
+  });
+  document.querySelectorAll('.gallery-detail__video-slot').forEach((slot) => {
+    initSlot(slot, 'gallery-detail__video--active');
+  });
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
@@ -303,6 +514,8 @@ if (document.readyState === 'loading') {
     setupGalleryDetailBackButton();
     setupGalleryScrollRestore();
     tryRestoreGalleryScrollOnIndex();
+    setupMobileGalleryScrollHint();
+    setupHorseVideoSeamlessLoop();
   });
 } else {
   setupLondonClock();
@@ -313,4 +526,6 @@ if (document.readyState === 'loading') {
   setupGalleryDetailBackButton();
   setupGalleryScrollRestore();
   tryRestoreGalleryScrollOnIndex();
+  setupMobileGalleryScrollHint();
+  setupHorseVideoSeamlessLoop();
 }

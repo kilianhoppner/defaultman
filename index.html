@@ -13,6 +13,7 @@
 <body>
 <!-- Top bar -->
 <div class="top-bar">
+  <div class="top-bar__cluster">
   <div class="top-actions">
     <a href="index.html" class="nav-button gallery-button">Gallery</a>
     <a href="bio.html" class="nav-button bio-button">Bio</a>
@@ -28,6 +29,15 @@
       <span class="clock-hand second-hand"></span>
       <span class="clock-center"></span>
     </div>
+  </div>
+  </div>
+
+  <div class="mobile-scroll-hint" hidden>
+    <button type="button" class="mobile-scroll-hint__btn" aria-label="Scroll down to see gallery">
+      <svg class="mobile-scroll-hint__icon" viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
   </div>
 
 </div>
@@ -102,6 +112,31 @@
     />
     </a>
   </div>
+  <div class="gallery-video-slot gallery-video-slot--whitehorse" aria-label="White horse">
+    <a href="gallery-pages/whitehorse.html" class="gallery-tile-overlay-link" aria-label="Open white horse"></a>
+    <video
+      class="gallery-video-slot__video"
+      src="gallery/whitehorse.mp4"
+      muted
+      playsinline
+      autoplay
+      preload="auto"
+    ></video>
+    <video
+      class="gallery-video-slot__video"
+      src="gallery/whitehorse.mp4"
+      muted
+      playsinline
+      preload="auto"
+    ></video>
+  </div>
+  <a href="gallery-pages/menarefrommars.html" class="gallery-item-link"
+    ><img
+      src="gallery/menarefrommars.svg"
+      alt="Men are from Mars, women are from Venus"
+      class="menarefrommars"
+      decoding="async"
+  /></a>
 </section>
 
 <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>

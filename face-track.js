@@ -14,11 +14,70 @@
   /** Smoothed box actually drawn. */
   let displayBox = null;
 
-  /** Lower = calmer motion (position only; size stays fixed). */
-  const SMOOTH = 0.055;
+  /** Position lerp per frame (desktop / tablet / large viewports — full face follow). */
+  const SMOOTH_DEFAULT = 0.055;
+  /** Phone-only: calmer lerp (see SUBTLE_TRACK_MAX_WIDTH). */
+  const SMOOTH_PHONE = 0.012;
 
-  /** Matches gallery mobile breakpoint in style.css — larger box on narrow viewports. */
+  /**
+   * Blend face target toward tile centre — only on narrow phone viewports.
+   * Lower = outline stays nearer the middle.
+   */
+  const CENTER_PULL_PHONE = 0.14;
+
+  /** Detector low-pass before centre pull — phone-only. */
+  const DETECTOR_PRE_SMOOTH_PHONE = 0.22;
+
+  /** Outline stroke: same visual proportion as ~4px on a typical grid tile, all viewports. */
+  const OUTLINE_STROKE_MIN = 3;
+  const OUTLINE_STROKE_MAX = 14;
+  const OUTLINE_STROKE_RATIO = 0.0295;
+
+  /** Matches gallery: larger face box when width ≤ this (phones + iPad portrait). */
   const MOBILE_MAX_WIDTH = 768;
+
+  /**
+   * Subtle tracking (centre bias, extra smoothing, detector low-pass) — **phones only**.
+   * iPad / desktop use full face follow + default smoothing.
+   */
+  const SUBTLE_TRACK_MAX_WIDTH = 600;
+
+  function isMobileViewport() {
+    return window.innerWidth <= MOBILE_MAX_WIDTH;
+  }
+
+  function isSubtleTrackingViewport() {
+    return window.innerWidth <= SUBTLE_TRACK_MAX_WIDTH;
+  }
+
+  function displaySmoothFactor() {
+    return isSubtleTrackingViewport() ? SMOOTH_PHONE : SMOOTH_DEFAULT;
+  }
+
+  let lastDetectorSmoothed = null;
+
+  function smoothDetectorBox(box) {
+    if (!box) {
+      lastDetectorSmoothed = null;
+      return null;
+    }
+    if (!isSubtleTrackingViewport()) {
+      lastDetectorSmoothed = null;
+      return box;
+    }
+    const a = DETECTOR_PRE_SMOOTH_PHONE;
+    if (!lastDetectorSmoothed) {
+      lastDetectorSmoothed = { x: box.x, y: box.y, w: box.w, h: box.h };
+      return { ...lastDetectorSmoothed };
+    }
+    lastDetectorSmoothed = {
+      x: lastDetectorSmoothed.x + (box.x - lastDetectorSmoothed.x) * a,
+      y: lastDetectorSmoothed.y + (box.y - lastDetectorSmoothed.y) * a,
+      w: box.w,
+      h: box.h,
+    };
+    return { ...lastDetectorSmoothed };
+  }
 
   function onGalleryDetail() {
     return Boolean(slot.closest('main.gallery-detail'));
@@ -31,14 +90,15 @@
     return onGalleryDetail() ? 0.65 : 0.34;
   }
 
-  /** Border scales with box edge length on gallery detail; index uses stylesheet 4px. */
+  /** One stroke rule for index + detail: proportional to box, clamped (matches ~4px on typical grid tile). */
   function applyOutlineBorder(size) {
-    if (onGalleryDetail()) {
-      const px = Math.max(5, Math.min(16, Math.round(size * 0.045)));
-      outline.style.borderWidth = `${px}px`;
-    } else {
-      outline.style.borderWidth = '';
-    }
+    const px = Math.max(
+      OUTLINE_STROKE_MIN,
+      Math.min(OUTLINE_STROKE_MAX, Math.round(size * OUTLINE_STROKE_RATIO))
+    );
+    outline.style.borderWidth = `${px}px`;
+    outline.style.borderStyle = 'solid';
+    outline.style.borderColor = '#00ff41';
   }
 
   function placeFallbackBox(W, H) {
@@ -99,11 +159,17 @@
 
     const t = targetBox;
     const size = Math.min(W, H) * faceBoxFraction();
+    const cx = (W - size) / 2;
+    const cy = (H - size) / 2;
+    const pull = isSubtleTrackingViewport() ? CENTER_PULL_PHONE : 1;
+    const tx = cx + (t.x - cx) * pull;
+    const ty = cy + (t.y - cy) * pull;
+    const smooth = displaySmoothFactor();
     if (!displayBox) {
-      displayBox = { x: t.x, y: t.y, w: size, h: size };
+      displayBox = { x: tx, y: ty, w: size, h: size };
     } else {
-      displayBox.x += (t.x - displayBox.x) * SMOOTH;
-      displayBox.y += (t.y - displayBox.y) * SMOOTH;
+      displayBox.x += (tx - displayBox.x) * smooth;
+      displayBox.y += (ty - displayBox.y) * smooth;
       displayBox.w = size;
       displayBox.h = size;
     }
@@ -137,7 +203,7 @@
       busy = true;
       detect()
         .then((box) => {
-          targetBox = box;
+          targetBox = smoothDetectorBox(box);
         })
         .catch(() => {})
         .finally(() => {
