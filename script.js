@@ -294,14 +294,15 @@ function setupGalleryAudioSlots() {
 registerGalleryScrollRestoreOnPageshow();
 
 /**
- * Mobile index: soft blinking arrow under the nav; tap scrolls a short way.
- * Fades out when the gallery enters view; fades back in when scrolled to top.
+ * Mobile (index + bio): soft blinking arrow under the nav; tap scrolls a short way.
+ * Fades out when main content (gallery or bio) enters view; fades back at top.
  */
 function setupMobileGalleryScrollHint() {
   const wrap = document.querySelector('.mobile-scroll-hint');
   const btn = document.querySelector('.mobile-scroll-hint__btn');
-  const gallery = document.querySelector('section.gallery');
-  if (!wrap || !btn || !gallery) return;
+  const contentSection =
+    document.querySelector('section.gallery') || document.querySelector('section.profile-content');
+  if (!wrap || !btn || !contentSection) return;
 
   const mq = window.matchMedia('(max-width: 768px)');
   const FADED = 'mobile-scroll-hint--faded';
@@ -320,8 +321,8 @@ function setupMobileGalleryScrollHint() {
     }
     wrap.hidden = false;
 
-    const galleryTop = gallery.getBoundingClientRect().top;
-    const contentVisible = galleryTop < window.innerHeight * 0.88;
+    const contentTop = contentSection.getBoundingClientRect().top;
+    const contentVisible = contentTop < window.innerHeight * 0.88;
     wrap.classList.toggle(FADED, contentVisible);
   }
 

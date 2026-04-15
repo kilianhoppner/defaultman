@@ -14,8 +14,8 @@
   /** Smoothed box actually drawn. */
   let displayBox = null;
 
-  /** Position lerp per frame (desktop / tablet / large viewports — full face follow). */
-  const SMOOTH_DEFAULT = 0.055;
+  /** Position lerp per frame (desktop / tablet / large viewports — partial centre bias). */
+  const SMOOTH_DEFAULT = 0.042;
   /** Phone-only: calmer lerp (see SUBTLE_TRACK_MAX_WIDTH). */
   const SMOOTH_PHONE = 0.012;
 
@@ -24,6 +24,12 @@
    * Lower = outline stays nearer the middle.
    */
   const CENTER_PULL_PHONE = 0.14;
+
+  /**
+   * Wider viewports (tablet / desktop): partial follow — outline stays closer to grid centre.
+   * 1 = full follow (legacy); lower = less excursion from centre.
+   */
+  const CENTER_PULL_DESKTOP = 0.5;
 
   /** Detector low-pass before centre pull — phone-only. */
   const DETECTOR_PRE_SMOOTH_PHONE = 0.22;
@@ -48,6 +54,12 @@
 
   function isSubtleTrackingViewport() {
     return window.innerWidth <= SUBTLE_TRACK_MAX_WIDTH;
+  }
+
+  /** How much of the face offset from tile centre to apply (always ≤ 1). */
+  function centerPullFactor() {
+    if (isSubtleTrackingViewport()) return CENTER_PULL_PHONE;
+    return CENTER_PULL_DESKTOP;
   }
 
   function displaySmoothFactor() {
@@ -161,7 +173,7 @@
     const size = Math.min(W, H) * faceBoxFraction();
     const cx = (W - size) / 2;
     const cy = (H - size) / 2;
-    const pull = isSubtleTrackingViewport() ? CENTER_PULL_PHONE : 1;
+    const pull = centerPullFactor();
     const tx = cx + (t.x - cx) * pull;
     const ty = cy + (t.y - cy) * pull;
     const smooth = displaySmoothFactor();

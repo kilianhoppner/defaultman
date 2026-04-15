@@ -301,8 +301,8 @@ body {
 }
 
 .profile-content {
-  max-width: 68ch;
-  margin-left: clamp(35px, 14vw, 240px);
+  max-width: var(--prose-max-width);
+  margin-left: var(--prose-margin-left);
   margin-top: 40px;
   margin-bottom: 80px;
 }
@@ -315,7 +315,10 @@ body {
 .profile-content p.section-heading {
   color: #000000;
   background-color: rgb(255, 255, 0);
-  display: inline-block;
+  /* block + fit-content: same shrink-wrap as inline-block, without baseline gap before the next block */
+  display: block;
+  width: fit-content;
+  max-width: 100%;
   padding: 0.1em 0.22em 0.14em;
   margin-bottom: 0.72em;
   box-decoration-break: clone;
@@ -326,9 +329,26 @@ body {
   margin-top: 1.75em;
 }
 
+/* Gallery detail: more space above “References” after description or other copy */
+.gallery-detail__details.profile-content p.section-heading:not(:first-child) {
+  margin-top: clamp(1.75em, 1em + 2.5vw, 2.5em);
+}
+
+/* Bibliography lines: avoid default paragraph gaps between each citation */
+.profile-content .reference-list p {
+  margin: 0 0 0.2em 0;
+}
+
+.profile-content .reference-list p:last-child {
+  margin-bottom: 0;
+}
+
 /* Detail pages: center in the visible viewport. min-height is required or main collapses to image height
    and justify-content:center has no effect (looks “stuck to the top”). Does not rely on :has(). */
 :root {
+  /* Bio + gallery detail copy: shared measure and left offset (bio is flush to body; detail subtracts main padding below) */
+  --prose-max-width: 68ch;
+  --prose-margin-left: clamp(35px, 14vw, 240px);
   /* Used in min-height calc; nudges vertical center slightly when increased */
   --gallery-detail-chrome: 12rem;
   /* Caps for artwork on gallery-pages (detail views) */
@@ -342,6 +362,7 @@ body {
 }
 
 main.gallery-detail {
+  --gallery-detail-main-pad-x: clamp(16px, 3vw, 32px);
   display: flex;
   flex-direction: column;
   /* Stretch so .profile-content uses the same width and left margin as on bio.html */
@@ -354,7 +375,7 @@ main.gallery-detail {
   margin-left: auto;
   margin-right: auto;
   /* Less padding above than below so centered art sits slightly higher under the nav */
-  padding: clamp(6px, 1.2vw, 14px) clamp(16px, 3vw, 32px) clamp(22px, 3.5vw, 44px);
+  padding: clamp(6px, 1.2vw, 14px) var(--gallery-detail-main-pad-x) clamp(22px, 3.5vw, 44px);
 }
 
 /*
@@ -374,17 +395,28 @@ main.gallery-detail {
   min-height: min(72vh, calc(100svh - var(--gallery-detail-chrome) - 4rem));
 }
 
-/* Extra space between image (stage) and title line */
+/* Extra space between image (stage) and title line; center column in page */
 .gallery-detail__headline.profile-content {
   margin-top: 0;
   margin-bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: min(var(--prose-max-width), 100%);
   padding-top: clamp(2rem, 6vw, 3.5rem);
+  text-align: center;
 }
 
-/* Flush to headline when scrolling; keep bottom margin like bio */
+/* Flush to headline when scrolling; extra air under hero title; body + references stay in default left .profile-content column */
 .gallery-detail__details.profile-content {
   margin-top: 0;
-  padding-top: 0;
+  padding-top: clamp(1.25rem, 3.2vw, 2.25rem);
+  text-align: left;
+}
+
+/* Description + references: same line length and left edge as bio (main horizontal padding is accounted for) */
+main.gallery-detail .gallery-detail__details.profile-content {
+  max-width: var(--prose-max-width);
+  margin-left: max(0px, calc(var(--prose-margin-left) - var(--gallery-detail-main-pad-x)));
 }
 
 /* Hero band: centers artwork; prose sits below and scrolls with the page */
@@ -710,6 +742,14 @@ section.gallery.midnight-page-single ~ footer.footer {
     --gallery-detail-media-min-h: min(220px, 32vh);
   }
 
+  /* Typeface detail (typeface.html): smaller PNG than default detail bounds on phones */
+  main.gallery-detail--typeface {
+    --gallery-detail-media-max-w: min(74vw, 400px);
+    --gallery-detail-media-max-h: min(34vh, 340px);
+    --gallery-detail-media-min-w: min(140px, 64vw);
+    --gallery-detail-media-min-h: min(100px, 20vh);
+  }
+
   /* Gallery detail on phone: no nav / clock — only work, copy, footer */
   body:has(main.gallery-detail) {
     --gallery-detail-chrome: 0rem;
@@ -720,6 +760,7 @@ section.gallery.midnight-page-single ~ footer.footer {
   }
 
   main.gallery-detail {
+    --gallery-detail-main-pad-x: max(16px, env(safe-area-inset-left, 0px));
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
     padding-top: max(12px, env(safe-area-inset-top, 0px));
@@ -1112,6 +1153,18 @@ section.gallery.midnight-page-single ~ footer.footer {
   --img-max-height: 65%;
   animation: bridge-rainbow-hue 12s linear infinite;
 }
+
+/* Wide gallery (5 columns): slightly smaller tile than tablet / mobile */
+@media (min-width: 1025px) {
+  .gallery img.bridge {
+    --img-max-height: 60%;
+  }
+}
+
+/* Gallery detail: same hue cycle as index tile (index-only selector above does not match here) */
+.gallery-detail__image.bridge {
+  animation: bridge-rainbow-hue 12s linear infinite;
+}
 .gallery img.tshirt { --img-max-height: 100%; }
 .gallery img.spinebeam { --img-max-height: 55%; }
 .gallery img.sketchhouse { --img-max-height: 95%; }
@@ -1328,7 +1381,7 @@ section.gallery.midnight-page-single ~ footer.footer {
   align-self: center;
 }
 .gallery img.laptop { --img-max-height: 85%; }
-.gallery img.scissors { --img-max-height: 70%; }
+.gallery img.scissors { --img-max-height: 62%; }
 
 /* Index only: hidden on desktop; shown on narrow viewports via JS + media query */
 .mobile-scroll-hint {
@@ -1513,6 +1566,17 @@ section.gallery.midnight-page-single ~ footer.footer {
     margin-top: 1.45em;
   }
 
+  .profile-content .reference-list p {
+    margin: 0 0 0.18em 0;
+  }
+
+  /* Gallery detail: main already provides horizontal inset — match bio’s 16px side margins without doubling */
+  main.gallery-detail .gallery-detail__details.profile-content {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: none;
+  }
+
   .gallery {
     gap: 8px;
     grid-template-columns: 1fr;
@@ -1536,8 +1600,20 @@ section.gallery.midnight-page-single ~ footer.footer {
     font-size: clamp(2.25rem, 16vw, 4rem);
   }
 
+  /* Detail page: match index tile scale (was clamp(4.75rem, 34vw, 8rem) — far too large on phones) */
   main.gallery-detail .gallery .gallery-midnight-time {
-    font-size: clamp(4.75rem, 34vw, 8rem);
+    font-size: clamp(2.25rem, 16vw, 4rem);
+  }
+
+  /* Index grid: 3D spring tile — slightly larger preview on phones */
+  .gallery .gallery-iframe-slot.spring-3d {
+    transform: scale(1.1);
+    transform-origin: center center;
+    margin-bottom: clamp(10px, 3.5vw, 22px);
+  }
+
+  .gallery .gallery-iframe-slot.spring-3d:hover {
+    transform: scale(calc(1.1 * 1.26));
   }
 
   /*
@@ -1599,6 +1675,15 @@ section.gallery.midnight-page-single ~ footer.footer {
     border-radius: 9999px;
     font-size: 1.5em;
     padding: 23px 18px;
+  }
+
+  /*
+   * Centered title / year / medium on gallery detail — mobile only, last in cascade.
+   * Uses main.gallery-detail (not body:has) so it always matches; padding + negative margin pulls the line up visibly.
+   */
+  main.gallery-detail .gallery-detail__headline.profile-content {
+    padding-top: clamp(0.35rem, 2vw, 1.15rem);
+    margin-top: -0.85rem;
   }
 
 }
