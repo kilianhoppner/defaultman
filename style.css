@@ -1354,6 +1354,7 @@ section.gallery.midnight-page-single ~ footer.footer {
     align-self: stretch;
     width: 100%;
     flex-shrink: 0;
+    padding-top: clamp(24px, 7vw, 48px);
     padding-bottom: max(22px, env(safe-area-inset-bottom, 0px));
     opacity: 1;
     transition: opacity 0.45s ease;
