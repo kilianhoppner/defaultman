@@ -225,8 +225,25 @@
     requestAnimationFrame(frame);
   }
 
+  function placeFallbackIfIdle() {
+    if (streamActive && trackingActive) return;
+    const W = slot.clientWidth;
+    const H = slot.clientHeight;
+    if (!W || !H) return;
+    placeFallbackBox(W, H);
+  }
+
   async function init() {
     requestAnimationFrame(renderLoop);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => placeFallbackIfIdle());
+      ro.observe(slot);
+    }
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(placeFallbackIfIdle);
+    });
 
     try {
       video.srcObject = await navigator.mediaDevices.getUserMedia({

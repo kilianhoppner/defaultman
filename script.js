@@ -327,7 +327,7 @@ function setupMobileGalleryScrollHint() {
   }
 
   function onClick() {
-    const delta = Math.min(220, Math.max(100, window.innerHeight * 0.18));
+    const delta = Math.min(220, Math.max(100, window.innerHeight * 0.25));
     window.scrollBy({ top: delta, behavior: 'smooth' });
   }
 
