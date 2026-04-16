@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>3D Spring</title>
+<title>Man at the centre of the world</title>
 <link rel="stylesheet" href="../style.css">
 <link rel="icon" href="../favicon/favicon.svg" type="image/svg+xml">
 </head>
@@ -24,23 +24,30 @@
   </div>
 </div>
 
-<main class="gallery-detail">
+<main class="gallery-detail gallery-detail--globe-sphere">
   <div class="gallery-detail__hero">
-    <div class="gallery-detail__stage gallery-detail--spring3d">
-    <iframe class="gallery-detail__iframe-spring" src="https://kilianhoppner.github.io/3Dspring-whitebackground-/" title="3D spring" loading="lazy"></iframe>
-  </div>
+    <div class="gallery-detail__stage">
+      <div class="gallery-detail__globe-slot" aria-label="Textured sphere">
+        <div class="gallery-globe-wireframe__canvas" data-globe-sphere-three></div>
+      </div>
+    </div>
     <section class="profile-content gallery-detail__headline">
-      <p><em>Spring</em>, 2026, 3D model created inp5.js</p>
+      <p><em>Man at the centre of the world</em>, 2026, 3D model created in Three.js</p>
     </section>
   </div>
   <section class="profile-content gallery-detail__details">
     <p class="section-heading">References</p>
-    <div class="reference-list">
-      <p>—</p>
-    </div>
+    <p>Grayson Perry, <a href="https://www.penguin.co.uk/books/288084/the-descent-of-man-by-perry-grayson/9780141981741" class="hyperlink" rel="noopener noreferrer">The Descent of Man</a>, 2017</p>
   </section>
 </main>
 
+<script>
+  window.GLOBE_SPHERE_CONFIG = {
+    radius: 0.45,
+    camera: { position: [0, 0.12, 1.48] },
+  };
+</script>
+<script type="module" src="../globe-sphere-three.js?v=28"></script>
 <script src="../script.js"></script>
 <footer class="footer">Website developed by <a href="https://www.linkedin.com/in/kilian-h%C3%B6ppner-683737312/" class="hyperlink" rel="noopener noreferrer">Kilian Höppner</a>. Typeset in <a href="https://abcdinamo.com/typefaces/diatype" class="hyperlink" rel="noopener noreferrer">ABC Diatype</a>. Copyright © 2026. All rights reserved.</footer>
 </body>
