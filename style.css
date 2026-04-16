@@ -480,6 +480,15 @@ main.gallery-detail--menarefrommars {
   --gallery-detail-media-min-h: min(200px, 34vh);
 }
 
+@media (max-width: 768px) {
+  main.gallery-detail--menarefrommars {
+    --gallery-detail-media-max-w: min(62vw, calc(var(--gallery-detail-art-max-w) * 0.73));
+    --gallery-detail-media-max-h: min(46vh, calc(var(--gallery-detail-art-max-h) * 0.73));
+    --gallery-detail-media-min-w: min(200px, 82vw);
+    --gallery-detail-media-min-h: min(176px, 30vh);
+  }
+}
+
 @media (min-width: 769px) {
   main.gallery-detail--menarefrommars {
     --gallery-detail-media-max-w: min(72vw, calc(var(--gallery-detail-art-max-w) * 0.86));
@@ -487,9 +496,10 @@ main.gallery-detail--menarefrommars {
   }
 }
 
-/* 3D detail pages (head, toilet roll): calm gallery chrome — no frosted lift / clock nudge on hover */
+/* 3D detail pages (head, toilet roll, globe): calm gallery chrome — no frosted lift / clock nudge on hover */
 body:has(main.gallery-detail--head) .nav-button:hover,
-body:has(main.gallery-detail--toiletroll) .nav-button:hover {
+body:has(main.gallery-detail--toiletroll) .nav-button:hover,
+body:has(main.gallery-detail--globe-sphere) .nav-button:hover {
   transform: none;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.06),
@@ -498,7 +508,8 @@ body:has(main.gallery-detail--toiletroll) .nav-button:hover {
 }
 
 body:has(main.gallery-detail--head) .clock:hover,
-body:has(main.gallery-detail--toiletroll) .clock:hover {
+body:has(main.gallery-detail--toiletroll) .clock:hover,
+body:has(main.gallery-detail--globe-sphere) .clock:hover {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.42),
     0 4px 16px rgba(0, 0, 0, 0.1);
@@ -507,7 +518,8 @@ body:has(main.gallery-detail--toiletroll) .clock:hover {
 
 @media (min-width: 769px) {
   body:has(main.gallery-detail--head) .clock:hover:not(.clock--expanded),
-  body:has(main.gallery-detail--toiletroll) .clock:hover:not(.clock--expanded) {
+  body:has(main.gallery-detail--toiletroll) .clock:hover:not(.clock--expanded),
+  body:has(main.gallery-detail--globe-sphere) .clock:hover:not(.clock--expanded) {
     transform: translate3d(0, 0, 0) scale(1.2);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.42),
@@ -884,6 +896,7 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery .gallery-iframe-slot,
 .gallery .gallery-video-slot,
 .gallery .gallery-audio-slot,
+.gallery .gallery-globe-wireframe,
 .gallery-detail__stage .gallery-audio-slot {
   position: relative;
   width: 100%;
@@ -900,9 +913,57 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery .gallery-iframe-slot,
 .gallery .gallery-video-slot,
 .gallery .gallery-audio-slot,
+.gallery .gallery-globe-wireframe,
 .gallery-detail__stage .gallery-audio-slot {
   max-height: var(--img-max-height, 100%);
   max-width: var(--img-max-width, 100%);
+}
+
+/* Index grid: p5.js WEBGL sphere + graticule (rotates about Y) — decorative tile */
+.gallery .gallery-globe-wireframe {
+  overflow: visible;
+  --img-max-height: 72%;
+  --img-max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #000000;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.gallery .gallery-globe-wireframe:hover {
+  transform: scale(1.26);
+}
+
+.gallery .gallery-globe-wireframe--with-overlay {
+  cursor: pointer;
+}
+
+/* Overlay link receives clicks; WebGL canvas does not */
+.gallery .gallery-globe-wireframe--with-overlay .gallery-globe-wireframe__canvas,
+.gallery .gallery-globe-wireframe--with-overlay .gallery-globe-wireframe__canvas canvas {
+  pointer-events: none;
+}
+
+.gallery .gallery-globe-wireframe__canvas {
+  width: min(88%, 11rem);
+  min-width: 8rem;
+  min-height: 8rem;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+.gallery .gallery-globe-wireframe__canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
 }
 
 .gallery .gallery-iframe-slot:hover,
@@ -963,6 +1024,39 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery .gallery-iframe-slot--with-overlay model-viewer,
 .gallery .gallery-iframe-slot--with-overlay .gallery-toiletroll-3d__viewer {
   pointer-events: none;
+}
+
+/* Globe sphere detail: same footprint as toilet-roll WebGL tile — square slot, canvas fills it */
+main.gallery-detail--globe-sphere .gallery-detail__globe-slot {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: min(100%, var(--gallery-detail-media-max-w));
+  max-width: var(--gallery-detail-media-max-w);
+  max-height: min(75vh, var(--gallery-detail-media-max-h));
+  min-width: var(--gallery-detail-media-min-w);
+  min-height: var(--gallery-detail-media-min-h);
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wireframe__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  aspect-ratio: unset;
+}
+
+main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wireframe__canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .gallery .gallery-audio-slot,
