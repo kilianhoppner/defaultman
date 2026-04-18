@@ -8,8 +8,13 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 // EDIT BELOW — all defaults in one place
 // =============================================================================
 
-/** Texture file relative to this module (code/gallery/…) */
-const TEXTURE_PATH = './gallery/globe-portrait-square.png';
+/** Equirectangular Earth texture map (code/gallery/…). */
+const TEXTURE_PATH = './gallery/earth-texture-map.png';
+/** Full-body figure composited on top of the Earth map (same folder). Black background → transparent. */
+const FIGURE_OVERLAY_PATH = './gallery/globe-figure-overlay.png';
+
+/** Max dimension when building composite canvas (higher = sharper figure, more GPU memory). */
+const COMPOSITE_TEXTURE_MAX_DIM = 8192;
 
 const GLOBE_DEFAULTS = {
   /** Log merged config to console */
@@ -33,22 +38,53 @@ const GLOBE_DEFAULTS = {
   texture: {
     enabled: true,
     /** Multiplies albedo; > 1 brightens the mapped image */
-    brightness: 1.8,
+    brightness: 2,
     /**
      * UV scale: 1 = full image on the map. Below 1 crops toward center (zoom in); above 1 zooms out
      * (image smaller on sphere, edges clamp). mapRepeatX / mapRepeatY override per axis.
      */
-    mapRepeat: 1.35,
+    mapRepeat: 1,
     mapRepeatX: null,
     mapRepeatY: null,
     /** Extra UV offset after centering (texture space). Negative mapOffsetV nudges the image upward on the sphere. */
     mapOffsetU: 0,
-    mapOffsetV: -0.059,
+    mapOffsetV: 0,
+    /** Draw small figure on top of Earth (same UV / mapRepeat as Earth-only; Earth is unchanged underneath). */
+    figureOverlayEnabled: true,
+    /** null = FIGURE_OVERLAY_PATH */
+    figureOverlayUrl: null,
+    /** Figure height as a fraction of the texture height (small on the globe). */
+    figureOverlayHeightScale: 0.28,
+    /** Where to place the figure center, in texture space 0–1 (u = longitude, v = latitude in image). */
+    figureOverlayAnchorU: 0.39,
+    figureOverlayAnchorV: 0.32,
+    /**
+     * Less than 1 shrinks only the drawn height (width stays from the base height) so the figure
+     * looks less tall on the globe. 1 = natural image aspect (values above 1 are still clamped to 1).
+     */
+    figureVerticalSquash: 0.78,
+    /** Treat near-black as transparent (stock photo backgrounds). */
+    figureKnockoutBlack: true,
+    figureKnockoutBlackThreshold: 18,
+    /**
+     * Multiply Earth+figure canvas size (same UV mapping, more pixels = sharper man on the globe).
+     * Blur happens when the figure only uses a few hundred texels; 2 is a good default.
+     */
+    figureCompositeResolutionScale: 2,
+    /**
+     * Render the figure into a larger offscreen buffer before placing (sharper edges after knockout).
+     */
+    figureSpriteSupersample: 2,
+    /**
+     * Figure mesh radius = (globe radius × lines.radiusScale) × this, so it sits just outside graticule lines.
+     */
+    figureOverlayLineRadiusMultiplier: 1.0015,
   },
 
   lines: {
-    color: 0x343434,
-    parallelCount: 12,
+    /** Graticule (lat/long) lines on the sphere */
+    color: 0x2B2B2B,
+    parallelCount: 11,
     poleMargin: 0.08,
     /** Set to a non-empty array to override parallelCount (latitudes in radians) */
     parallels: null,
@@ -134,6 +170,11 @@ function buildConfig() {
   } else if (typeof mergedTexture.url === 'string') {
     mergedTexture.url = resolveTextureUrl(mergedTexture.url);
   }
+  if (mergedTexture.figureOverlayUrl == null || mergedTexture.figureOverlayUrl === '') {
+    mergedTexture.figureOverlayUrl = new URL(FIGURE_OVERLAY_PATH, import.meta.url).href;
+  } else if (typeof mergedTexture.figureOverlayUrl === 'string') {
+    mergedTexture.figureOverlayUrl = resolveTextureUrl(mergedTexture.figureOverlayUrl);
+  }
 
   return {
     ...GLOBE_DEFAULTS,
@@ -154,6 +195,116 @@ function buildConfig() {
     transparentCanvas:
       o.transparentCanvas !== undefined ? o.transparentCanvas : GLOBE_DEFAULTS.transparentCanvas,
   };
+}
+
+function knockoutNearBlackPixels(ctx, w, h, threshold) {
+  const t = Math.min(255, Math.max(0, threshold | 0));
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const d = imgData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i] <= t && d[i + 1] <= t && d[i + 2] <= t) {
+      d[i + 3] = 0;
+    }
+  }
+  ctx.putImageData(imgData, 0, 0);
+}
+
+/** Match Earth texture pixel size / UV layout (same as former Earth+figure composite). */
+function computeFigureCanvasDimensions(earthImg, tcfg) {
+  const ew0 = earthImg.naturalWidth || earthImg.width;
+  const eh0 = earthImg.naturalHeight || earthImg.height;
+  if (!ew0 || !eh0) return null;
+
+  let cw = ew0;
+  let ch = eh0;
+  const maxDim = COMPOSITE_TEXTURE_MAX_DIM;
+  const scaleDown = Math.min(1, maxDim / Math.max(cw, ch));
+  if (scaleDown < 1) {
+    cw = Math.max(1, Math.round(cw * scaleDown));
+    ch = Math.max(1, Math.round(ch * scaleDown));
+  }
+
+  const resScale =
+    typeof tcfg.figureCompositeResolutionScale === 'number' &&
+    !Number.isNaN(tcfg.figureCompositeResolutionScale)
+      ? Math.min(2.5, Math.max(1, tcfg.figureCompositeResolutionScale))
+      : 2;
+  cw = Math.max(1, Math.round(cw * resScale));
+  ch = Math.max(1, Math.round(ch * resScale));
+  if (Math.max(cw, ch) > maxDim) {
+    const k = maxDim / Math.max(cw, ch);
+    cw = Math.max(1, Math.round(cw * k));
+    ch = Math.max(1, Math.round(ch * k));
+  }
+
+  return { cw, ch };
+}
+
+/** Transparent canvas with the figure only; same UV mapping as Earth when used on a matching sphere. */
+function createFigureOnlyCanvas(cw, ch, figureImg, tcfg) {
+  const canvas = document.createElement('canvas');
+  canvas.width = cw;
+  canvas.height = ch;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  ctx.imageSmoothingEnabled = true;
+  if (typeof ctx.imageSmoothingQuality === 'string') {
+    ctx.imageSmoothingQuality = 'high';
+  }
+
+  const iw = figureImg.naturalWidth || figureImg.width;
+  const ih = figureImg.naturalHeight || figureImg.height;
+  if (!iw || !ih) return canvas;
+
+  const heightScale =
+    typeof tcfg.figureOverlayHeightScale === 'number' && !Number.isNaN(tcfg.figureOverlayHeightScale)
+      ? tcfg.figureOverlayHeightScale
+      : 0.11;
+  const fhBase = Math.max(2, ch * Math.min(0.45, Math.max(0.02, heightScale)));
+  const squash =
+    typeof tcfg.figureVerticalSquash === 'number' && !Number.isNaN(tcfg.figureVerticalSquash)
+      ? Math.max(0.25, Math.min(1, tcfg.figureVerticalSquash))
+      : 0.88;
+  const fh = fhBase * squash;
+  const fw = (iw / ih) * fhBase;
+  const au = tcfg.figureOverlayAnchorU != null ? tcfg.figureOverlayAnchorU : 0.5;
+  const av = tcfg.figureOverlayAnchorV != null ? tcfg.figureOverlayAnchorV : 0.5;
+  const ox = au * cw - fw / 2;
+  const oy = av * ch - fh / 2;
+
+  const knockout = tcfg.figureKnockoutBlack !== false;
+  const th = tcfg.figureKnockoutBlackThreshold != null ? tcfg.figureKnockoutBlackThreshold : 18;
+
+  const superS =
+    typeof tcfg.figureSpriteSupersample === 'number' && !Number.isNaN(tcfg.figureSpriteSupersample)
+      ? Math.min(3, Math.max(1, Math.round(tcfg.figureSpriteSupersample)))
+      : 2;
+
+  if (knockout) {
+    const pc = document.createElement('canvas');
+    const sw = Math.max(1, Math.round(fw * superS));
+    const sh = Math.max(1, Math.round(fh * superS));
+    pc.width = sw;
+    pc.height = sh;
+    const pctx = pc.getContext('2d');
+    if (!pctx) return canvas;
+    pctx.imageSmoothingEnabled = true;
+    if (typeof pctx.imageSmoothingQuality === 'string') {
+      pctx.imageSmoothingQuality = 'high';
+    }
+    pctx.drawImage(figureImg, 0, 0, sw, sh);
+    knockoutNearBlackPixels(pctx, sw, sh, th);
+    ctx.imageSmoothingEnabled = true;
+    if (typeof ctx.imageSmoothingQuality === 'string') {
+      ctx.imageSmoothingQuality = 'high';
+    }
+    ctx.drawImage(pc, 0, 0, sw, sh, ox, oy, fw, fh);
+  } else {
+    ctx.drawImage(figureImg, ox, oy, fw, fh);
+  }
+
+  return canvas;
 }
 
 function applyTextureMapZoom(tex, tcfg) {
@@ -328,28 +479,116 @@ function initGlobe(container) {
 
   if (CONFIG.texture.enabled && CONFIG.texture.url) {
     const loader = new THREE.TextureLoader();
+    const tcfg = CONFIG.texture;
+
+    function applyGlobeMap(tex) {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      if (tex.isCanvasTexture) {
+        tex.generateMipmaps = false;
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+      }
+      tex.anisotropy = Math.min(matTex.anisotropyMax, renderer.capabilities.getMaxAnisotropy());
+      applyTextureMapZoom(tex, tcfg);
+      sphereMesh.material.dispose();
+      const b = tcfg.brightness != null ? tcfg.brightness : 1;
+      sphereMesh.material = new THREE.MeshStandardMaterial({
+        map: tex,
+        color: new THREE.Color(b, b, b),
+        roughness: matTex.roughness,
+        metalness: matTex.metalness,
+        transparent: true,
+        depthWrite: true,
+        alphaTest: tex.isCanvasTexture ? 0.01 : 0,
+      });
+    }
+
     loader.load(
-      CONFIG.texture.url,
-      (tex) => {
-        tex.colorSpace = THREE.SRGBColorSpace;
-        tex.anisotropy = Math.min(
-          matTex.anisotropyMax,
-          renderer.capabilities.getMaxAnisotropy()
-        );
-        applyTextureMapZoom(tex, CONFIG.texture);
-        sphereMesh.material.dispose();
-        const b = CONFIG.texture.brightness != null ? CONFIG.texture.brightness : 1;
-        sphereMesh.material = new THREE.MeshStandardMaterial({
-          map: tex,
-          color: new THREE.Color(b, b, b),
-          roughness: matTex.roughness,
-          metalness: matTex.metalness,
-          transparent: true,
-          depthWrite: true,
-        });
-        if (CONFIG.debug) {
-          console.log('[globe-sphere-three] texture loaded', CONFIG.texture.url);
+      tcfg.url,
+      (earthTex) => {
+        const useFigure =
+          tcfg.figureOverlayEnabled !== false &&
+          tcfg.figureOverlayUrl &&
+          typeof tcfg.figureOverlayUrl === 'string';
+
+        if (!useFigure) {
+          applyGlobeMap(earthTex);
+          if (CONFIG.debug) {
+            console.log('[globe-sphere-three] texture loaded', tcfg.url);
+          }
+          return;
         }
+
+        loader.load(
+          tcfg.figureOverlayUrl,
+          (figureTex) => {
+            try {
+              applyGlobeMap(earthTex);
+
+              const dim = computeFigureCanvasDimensions(earthTex.image, tcfg);
+              const figCanvas =
+                dim && createFigureOnlyCanvas(dim.cw, dim.ch, figureTex.image, tcfg);
+              figureTex.dispose();
+
+              if (!figCanvas) {
+                if (CONFIG.debug) {
+                  console.log('[globe-sphere-three] Earth + figure (figure layer skipped)');
+                }
+                return;
+              }
+
+              const figMap = new THREE.CanvasTexture(figCanvas);
+              figMap.colorSpace = THREE.SRGBColorSpace;
+              figMap.generateMipmaps = false;
+              figMap.minFilter = THREE.LinearFilter;
+              figMap.magFilter = THREE.LinearFilter;
+              figMap.anisotropy = Math.min(
+                matTex.anisotropyMax,
+                renderer.capabilities.getMaxAnisotropy()
+              );
+              applyTextureMapZoom(figMap, tcfg);
+
+              const mult =
+                typeof tcfg.figureOverlayLineRadiusMultiplier === 'number' &&
+                !Number.isNaN(tcfg.figureOverlayLineRadiusMultiplier)
+                  ? Math.max(1.0001, tcfg.figureOverlayLineRadiusMultiplier)
+                  : 1.0015;
+              const figureR = lineR * mult;
+
+              const figureGeom = new THREE.SphereGeometry(
+                figureR,
+                CONFIG.sphere.widthSegments,
+                CONFIG.sphere.heightSegments
+              );
+              const b = tcfg.brightness != null ? tcfg.brightness : 1;
+              const figMat = new THREE.MeshStandardMaterial({
+                map: figMap,
+                color: new THREE.Color(b, b, b),
+                roughness: matTex.roughness,
+                metalness: matTex.metalness,
+                transparent: true,
+                alphaTest: 0.01,
+                depthWrite: true,
+              });
+              const figureMesh = new THREE.Mesh(figureGeom, figMat);
+              figureMesh.renderOrder = 1;
+              root.add(figureMesh);
+
+              if (CONFIG.debug) {
+                console.log('[globe-sphere-three] Earth + figure layer above graticule');
+              }
+            } catch (e) {
+              console.warn('[globe-sphere-three] figure layer failed; Earth only', e);
+              applyGlobeMap(earthTex);
+              figureTex.dispose();
+            }
+          },
+          undefined,
+          (err) => {
+            console.warn('[globe-sphere-three] figure overlay load failed; Earth only', err);
+            applyGlobeMap(earthTex);
+          }
+        );
       },
       undefined,
       (err) => {
