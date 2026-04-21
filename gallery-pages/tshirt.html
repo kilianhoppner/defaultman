@@ -24,13 +24,38 @@
   </div>
 </div>
 
-<main class="gallery-detail">
+<main class="gallery-detail gallery-detail--tshirt">
   <div class="gallery-detail__hero">
     <div class="gallery-detail__stage">
-    <img src="../gallery/tshirt.png" alt="T-shirt" class="gallery-detail__image" decoding="async">
-  </div>
+      <div class="gallery-detail__carousel" data-infinite-carousel aria-roledescription="carousel">
+        <button type="button" class="gallery-detail__carousel-nav gallery-detail__carousel-nav--prev mobile-scroll-hint__btn" aria-label="Previous slide">
+          <svg class="mobile-scroll-hint__icon gallery-detail__carousel-chevron gallery-detail__carousel-chevron--left" viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="gallery-detail__carousel-viewport">
+          <div class="gallery-detail__carousel-track">
+            <div class="gallery-detail__carousel-slide gallery-detail__carousel-slide--tshirt-first">
+              <div class="gallery-detail__carousel-media">
+                <img src="../gallery/tshirt.png" alt="UV-printed white t-shirt with multicolour outlined lettering" width="869" height="966" decoding="async" loading="lazy">
+              </div>
+            </div>
+            <div class="gallery-detail__carousel-slide">
+              <div class="gallery-detail__carousel-media">
+                <img src="../gallery/tshirt-flatlay.jpg" alt="White t-shirt laid flat on a table, multicolour lettering: he's a machine, a walking dildo" width="768" height="1024" decoding="async" loading="lazy">
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="gallery-detail__carousel-nav gallery-detail__carousel-nav--next mobile-scroll-hint__btn" aria-label="Next slide">
+          <svg class="mobile-scroll-hint__icon gallery-detail__carousel-chevron gallery-detail__carousel-chevron--right" viewBox="0 0 24 24" width="48" height="48" aria-hidden="true">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+      </div>
+    </div>
     <section class="profile-content gallery-detail__headline">
-      <p><em>He's a machine, a walking dildo</em>, 2026, UV print on t-shirt, size M</p>
+      <p><em>He's a machine a walking dildo</em>, 2026, UV print on t-shirt, edition of 1</p>
     </section>
   </div>
   <section class="profile-content gallery-detail__details">
@@ -41,6 +66,7 @@
 </main>
 
 <script src="../script.js"></script>
+<script src="../surveillance-carousel.js"></script>
 <footer class="footer">Website developed by <a href="https://www.linkedin.com/in/kilian-h%C3%B6ppner-683737312/" class="hyperlink" rel="noopener noreferrer">Kilian Höppner</a>. Typeset in <a href="https://abcdinamo.com/typefaces/diatype" class="hyperlink" rel="noopener noreferrer">ABC Diatype</a>. Copyright © 2026. All rights reserved.</footer>
 </body>
 </html>
