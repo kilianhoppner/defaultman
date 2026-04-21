@@ -23,12 +23,26 @@ html {
   height: 100%;
 }
 
+/* ≤1024px: fixed 16px root — phone + tablet match the pre-fluid rem layout (no jump at 1024/1025). */
+@media (max-width: 1024px) {
+  html {
+    font-size: 100%;
+  }
+}
+
+/* Desktop (5-col gallery): fluid root — at ~1440px-wide viewport, 1rem stays 16px; scales up/down with width. */
+@media (min-width: 1025px) {
+  html {
+    font-size: clamp(1rem, calc(100vw / 90), 1.375rem);
+  }
+}
+
 body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
-  margin: 30px 30px 0 30px;
+  margin: 1.875rem 1.875rem 0 1.875rem;
   overflow-x: hidden;
   background:white;
   /* linear-gradient(to bottom, rgba(255, 255, 0, 0.9) 0%, rgba(255, 255, 0, 0) 20%),
@@ -36,7 +50,7 @@ body {
   linear-gradient(to bottom, #ffffff 0%, #ffffff 100vh); */
   font-family: "Diatype";
   font-weight: 400; 
-  font-size: 1.6em;
+  font-size: 1.6rem;
   color: #000000;
   line-height: 1.2;
 }
@@ -53,8 +67,8 @@ body {
   z-index: 999;
   background-color: #ff00d9; /* hot pink */
   color: #ffffff;
-  padding: 1rem 16px;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  padding: 1rem 1rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0));
   box-sizing: border-box;
 }
 
@@ -163,7 +177,7 @@ body {
   align-items: flex-start;
   position: relative; /* for absolute logo centering */
   position: sticky;
-  top: 25px;
+  top: 1.5625rem;
   z-index: 1000;
 }
 
@@ -176,7 +190,7 @@ body {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .time {
@@ -189,8 +203,8 @@ body {
 /* Desktop: fixed slot so the top bar height/width doesn’t change when the clock is position:fixed while expanded */
 @media (min-width: 769px) {
   .time {
-    width: 75px;
-    height: 75px;
+    width: 4.6875rem;
+    height: 4.6875rem;
     flex-shrink: 0;
     box-sizing: border-box;
     justify-content: flex-end;
@@ -199,17 +213,17 @@ body {
 
 .clock {
   position: relative;
-  width: 75px;
-  height: 75px;
-  border: 1.5px solid black;
+  width: 4.6875rem;
+  height: 4.6875rem;
+  border: 0.09375rem solid black;
   border-radius: 50%;
   background-color: #ffffff;
   transform: scale(1.2);
   transform-origin: center;
-  /* Like .nav-button depth, but no outer 1px ring (avoids grey halo outside black border) */
+  /* Like .nav-button depth, but no outer 0.0625rem ring (avoids grey halo outside black border) */
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 4px 16px rgba(0, 0, 0, 0.1);
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+    0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   transition:
     box-shadow var(--nav-frost-dur) var(--nav-frost-ease),
     transform var(--nav-frost-dur) var(--nav-frost-ease);
@@ -217,16 +231,16 @@ body {
 
 .clock:hover {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 6px 22px rgba(0, 0, 0, 0.12);
-  transform: scale(1.2) translateY(-2px);
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.45),
+    0 0.375rem 1.375rem rgba(0, 0, 0, 0.12);
+  transform: scale(1.2) translateY(-0.125rem);
 }
 
 .clock:active {
   transform: scale(1.2) translateY(0);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 4px 16px rgba(0, 0, 0, 0.1);
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+    0 0.25rem 1rem rgba(0, 0, 0, 0.1);
 }
 
 .clock-hand {
@@ -238,20 +252,20 @@ body {
 }
 
 .hour-hand {
-  width: 25px;
-  height: 2px;
+  width: 1.5625rem;
+  height: 0.125rem;
   background: #0000ff;
 }
 
 .minute-hand {
-  width: 35px;
-  height: 1.5px;
+  width: 2.1875rem;
+  height: 0.09375rem;
   background: #0000ff;
 }
 
 .second-hand {
-  width: 35px;
-  height: 1.5px;
+  width: 2.1875rem;
+  height: 0.09375rem;
   background: red;
 }
 
@@ -259,10 +273,10 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 5px;
-  height: 5px;
+  width: 0.3125rem;
+  height: 0.3125rem;
   background: white;
-  border: 1.5px solid black;
+  border: 0.09375rem solid black;
   border-radius: 50%;
   transform: translate(-50%, -50%);
 }
@@ -281,15 +295,15 @@ body {
 
   .clock:hover:not(.clock--expanded) {
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.45),
-      0 6px 22px rgba(0, 0, 0, 0.12);
-    transform: translate3d(0, -2px, 0) scale(1.2);
+      inset 0 0.0625rem 0 rgba(255, 255, 255, 0.45),
+      0 0.375rem 1.375rem rgba(0, 0, 0, 0.12);
+    transform: translate3d(0, -0.125rem, 0) scale(1.2);
   }
 
   .clock:active:not(.clock--expanded) {
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.42),
-      0 4px 16px rgba(0, 0, 0, 0.1);
+      inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+      0 0.25rem 1rem rgba(0, 0, 0, 0.1);
     transform: translate3d(0, 0, 0) scale(1.2);
   }
 
@@ -298,8 +312,8 @@ body {
     left: 50%;
     top: 50%;
     z-index: 3000;
-    width: 75px;
-    height: 75px;
+    width: 4.6875rem;
+    height: 4.6875rem;
     margin: 0;
     transform: translate3d(-50%, -50%, 0) scale(1.2) scale(var(--clock-scale, 5));
     transform-origin: center center;
@@ -326,13 +340,13 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 15px 12px;
+  padding: 0.9375rem 0.75rem;
   color: #ffffff;
   -webkit-font-smoothing: antialiased;
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.36),
-    0 0 14px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.42);
+    0 0.0625rem 0.125rem rgba(0, 0, 0, 0.36),
+    0 0 0.875rem rgba(0, 0, 0, 0.12);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.42);
   outline: none;
   background:
     linear-gradient(
@@ -342,26 +356,26 @@ body {
       rgba(205, 216, 234, 0.127) 100%
     ),
     rgba(176, 179, 190, 0.46);
-  backdrop-filter: blur(20px) saturate(2.5);
-  -webkit-backdrop-filter: blur(20px) saturate(2.5);
+  backdrop-filter: blur(1.25rem) saturate(2.5);
+  -webkit-backdrop-filter: blur(1.25rem) saturate(2.5);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 4px 16px rgba(0, 0, 0, 0.1);
+    0 0 0 0.0625rem rgba(0, 0, 0, 0.06),
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+    0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   transition:
     box-shadow var(--nav-frost-dur) var(--nav-frost-ease),
     transform var(--nav-frost-dur) var(--nav-frost-ease);
 }
 
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+@supports not ((backdrop-filter: blur(0.0625rem)) or (-webkit-backdrop-filter: blur(0.0625rem))) {
   .nav-button {
     background: rgba(105, 115, 135, 0.93);
   }
 }
 
 .nav-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.95);
-  outline-offset: 3px;
+  outline: 0.125rem solid rgba(255, 255, 255, 0.95);
+  outline-offset: 0.1875rem;
 }
 
 .gallery-button {
@@ -369,38 +383,38 @@ body {
 }
 
 .bio-button {
-  border-radius: 50px;
+  border-radius: 3.125rem;
 }
 
 .email-button {
-  border-radius: 15px;
+  border-radius: 0.9375rem;
 }
 
 /* Hover / active: depth only — same fill, border, blur, and label styling as default */
 .nav-button:hover {
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 6px 22px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+    0 0 0 0.0625rem rgba(0, 0, 0, 0.08),
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.45),
+    0 0.375rem 1.375rem rgba(0, 0, 0, 0.12);
+  transform: translateY(-0.125rem);
 }
 
 .nav-button:active {
   transform: translateY(0);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.1),
-    inset 0 2px 8px rgba(0, 0, 0, 0.12),
-    0 2px 8px rgba(0, 0, 0, 0.08);
+    0 0 0 0.0625rem rgba(0, 0, 0, 0.1),
+    inset 0 0.125rem 0.5rem rgba(0, 0, 0, 0.12),
+    0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
 }
 
 .profile-content {
   max-width: var(--prose-max-width);
   margin-left: var(--prose-margin-left);
-  margin-top: 40px;
-  margin-bottom: 80px;
+  margin-top: 2.5rem;
+  margin-bottom: 5rem;
 }
 
-/* Tighter rhythm than browser defaults (body is 1.6em, so 1em margins read huge) */
+/* Tighter rhythm than browser defaults (body is 1.6rem, so 1em margins read huge) */
 .profile-content p {
   margin: 0 0 0.85em 0;
 }
@@ -441,21 +455,21 @@ body {
 :root {
   /* Bio + gallery detail copy: shared measure and left offset (bio is flush to body; detail subtracts main padding below) */
   --prose-max-width: 68ch;
-  --prose-margin-left: clamp(35px, 14vw, 240px);
+  --prose-margin-left: clamp(2.1875rem, 14vw, 15rem);
   /* Used in min-height calc; nudges vertical center slightly when increased */
   --gallery-detail-chrome: 12rem;
   /* Caps for artwork on gallery-pages (detail views) */
-  --gallery-detail-art-max-w: 960px;
-  --gallery-detail-art-max-h: 880px;
+  --gallery-detail-art-max-w: 60rem;
+  --gallery-detail-art-max-h: 55rem;
   /* Shared bounds for images, iframes, custom tiles, audio — one system for all detail media */
-  --gallery-detail-media-min-w: min(280px, 92vw);
-  --gallery-detail-media-min-h: min(280px, 42vh);
+  --gallery-detail-media-min-w: min(17.5rem, 92vw);
+  --gallery-detail-media-min-h: min(17.5rem, 42vh);
   --gallery-detail-media-max-w: min(88vw, var(--gallery-detail-art-max-w));
   --gallery-detail-media-max-h: min(68vh, var(--gallery-detail-art-max-h));
 }
 
 main.gallery-detail {
-  --gallery-detail-main-pad-x: clamp(16px, 3vw, 32px);
+  --gallery-detail-main-pad-x: clamp(1rem, 3vw, 2rem);
   display: flex;
   flex-direction: column;
   /* Stretch so .profile-content uses the same width and left margin as on bio.html */
@@ -464,11 +478,11 @@ main.gallery-detail {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  min-width: min(100%, 320px);
+  min-width: min(100%, 20rem);
   margin-left: auto;
   margin-right: auto;
   /* Less padding above than below so centered art sits slightly higher under the nav */
-  padding: clamp(6px, 1.2vw, 14px) var(--gallery-detail-main-pad-x) clamp(22px, 3.5vw, 44px);
+  padding: clamp(0.375rem, 1.2vw, 0.875rem) var(--gallery-detail-main-pad-x) clamp(1.375rem, 3.5vw, 2.75rem);
 }
 
 /*
@@ -509,7 +523,7 @@ main.gallery-detail {
 /* Description + references: same line length and left edge as bio (main horizontal padding is accounted for) */
 main.gallery-detail .gallery-detail__details.profile-content {
   max-width: var(--prose-max-width);
-  margin-left: max(0px, calc(var(--prose-margin-left) - var(--gallery-detail-main-pad-x)));
+  margin-left: max(0, calc(var(--prose-margin-left) - var(--gallery-detail-main-pad-x)));
 }
 
 /* Hero band: centers artwork; prose sits below and scrolls with the page */
@@ -531,24 +545,24 @@ main.gallery-detail ~ footer.footer {
 main.gallery-detail--whitehorse {
   --gallery-detail-media-max-w: min(72vw, calc(var(--gallery-detail-art-max-w) * 0.78));
   --gallery-detail-media-max-h: min(54vh, calc(var(--gallery-detail-art-max-h) * 0.78));
-  --gallery-detail-media-min-w: min(240px, 88vw);
-  --gallery-detail-media-min-h: min(220px, 36vh);
+  --gallery-detail-media-min-w: min(15rem, 88vw);
+  --gallery-detail-media-min-h: min(13.75rem, 36vh);
 }
 
 /* Men are from Mars — detail view: slightly smaller than default detail media */
 main.gallery-detail--menarefrommars {
   --gallery-detail-media-max-w: min(68vw, calc(var(--gallery-detail-art-max-w) * 0.8));
   --gallery-detail-media-max-h: min(52vh, calc(var(--gallery-detail-art-max-h) * 0.8));
-  --gallery-detail-media-min-w: min(220px, 88vw);
-  --gallery-detail-media-min-h: min(200px, 34vh);
+  --gallery-detail-media-min-w: min(13.75rem, 88vw);
+  --gallery-detail-media-min-h: min(12.5rem, 34vh);
 }
 
 @media (max-width: 768px) {
   main.gallery-detail--menarefrommars {
     --gallery-detail-media-max-w: min(62vw, calc(var(--gallery-detail-art-max-w) * 0.73));
     --gallery-detail-media-max-h: min(46vh, calc(var(--gallery-detail-art-max-h) * 0.73));
-    --gallery-detail-media-min-w: min(200px, 82vw);
-    --gallery-detail-media-min-h: min(176px, 30vh);
+    --gallery-detail-media-min-w: min(12.5rem, 82vw);
+    --gallery-detail-media-min-h: min(11rem, 30vh);
   }
 }
 
@@ -565,17 +579,17 @@ body:has(main.gallery-detail--toiletroll) .nav-button:hover,
 body:has(main.gallery-detail--globe-sphere) .nav-button:hover {
   transform: none;
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 4px 16px rgba(0, 0, 0, 0.1);
+    0 0 0 0.0625rem rgba(0, 0, 0, 0.06),
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+    0 0.25rem 1rem rgba(0, 0, 0, 0.1);
 }
 
 body:has(main.gallery-detail--head) .clock:hover,
 body:has(main.gallery-detail--toiletroll) .clock:hover,
 body:has(main.gallery-detail--globe-sphere) .clock:hover {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 4px 16px rgba(0, 0, 0, 0.1);
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+    0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   transform: scale(1.2);
 }
 
@@ -585,8 +599,8 @@ body:has(main.gallery-detail--globe-sphere) .clock:hover {
   body:has(main.gallery-detail--globe-sphere) .clock:hover:not(.clock--expanded) {
     transform: translate3d(0, 0, 0) scale(1.2);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.42),
-      0 4px 16px rgba(0, 0, 0, 0.1);
+      inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+      0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -692,7 +706,7 @@ main.gallery-detail--toiletroll .gallery-detail__toiletroll-slot .gallery-toilet
 
 /* Head model-viewer: hide default load progress UI (bar + dim mask) */
 model-viewer {
-  --progress-bar-height: 0px;
+  --progress-bar-height: 0;
   --progress-bar-color: transparent;
 }
 
@@ -762,8 +776,8 @@ main.gallery-detail:has(.gallery-detail--spring3d) .gallery-detail__details.prof
   --weatherroom-scale: 1.15;
   box-sizing: border-box;
   width: 100%;
-  max-width: min(min(100%, var(--img-max-width, 100%)), min(72vw, 380px));
-  min-width: min(220px, 85vw);
+  max-width: min(min(100%, var(--img-max-width, 100%)), min(72vw, 23.75rem));
+  min-width: min(13.75rem, 85vw);
   aspect-ratio: 11 / 8.5;
   max-height: none;
   height: auto;
@@ -805,17 +819,17 @@ main.gallery-detail .gallery .gallery-midnight-time {
 /* Single-item gallery rows on detail pages (face, midnight). */
 .gallery.facetrack-page-single,
 .gallery.midnight-page-single {
-  grid-template-columns: minmax(min(260px, 88vw), min(88vw, 440px));
+  grid-template-columns: minmax(min(16.25rem, 88vw), min(88vw, 27.5rem));
   justify-content: center;
   justify-items: center;
   align-content: center;
   width: 100%;
   max-width: 100%;
-  min-width: min(100%, 320px);
+  min-width: min(100%, 20rem);
   max-width: none;
   margin: 0 auto;
   box-sizing: border-box;
-  padding: clamp(6px, 1.2vw, 14px) clamp(16px, 3vw, 32px) clamp(22px, 3.5vw, 44px);
+  padding: clamp(0.375rem, 1.2vw, 0.875rem) clamp(1rem, 3vw, 2rem) clamp(1.375rem, 3.5vw, 2.75rem);
   min-height: calc(100svh - var(--gallery-detail-chrome));
 }
 
@@ -834,9 +848,9 @@ section.gallery.midnight-page-single ~ footer.footer {
 .gallery.facetrack-page-single .face-track-slot,
 .gallery.midnight-page-single .gallery-midnight-tile {
   width: 100%;
-  max-width: min(88vw, 440px);
-  min-width: min(260px, 88vw);
-  min-height: min(280px, 42vh);
+  max-width: min(88vw, 27.5rem);
+  min-width: min(16.25rem, 88vw);
+  min-height: min(17.5rem, 42vh);
 }
 
 /* Detail page: same min/max system as .gallery-detail__image */
@@ -914,7 +928,7 @@ main.gallery-detail--dollhouse .gallery-detail__carousel {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: clamp(6px, 1.5vw, 14px);
+  gap: clamp(0.375rem, 1.5vw, 0.875rem);
   width: 100%;
   max-width: calc(var(--gallery-detail-media-max-w) + 7rem);
   margin-top: 0;
@@ -969,7 +983,7 @@ main.gallery-detail--dollhouse .gallery-detail__carousel-slide {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 0;
+  padding: 0.25rem 0;
 }
 
 /*
@@ -1135,7 +1149,7 @@ main.gallery-detail--facetrack
   box-sizing: border-box;
   border-style: solid;
   border-color: #00ff41;
-  border-width: 3px;
+  border-width: 0.1875rem;
   background: transparent;
   pointer-events: none;
   z-index: 1;
@@ -1262,7 +1276,7 @@ main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__btn,
 main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__btn {
   background: none;
   border: none;
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   margin: 0;
   cursor: pointer;
   color: #ff00d9;
@@ -1283,8 +1297,8 @@ main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__
 main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__icon,
 main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__icon {
   display: block;
-  width: 48px;
-  height: 48px;
+  width: 3rem;
+  height: 3rem;
   animation: mobile-scroll-hint-blink 1.55s ease-in-out infinite;
 }
 
@@ -1321,8 +1335,8 @@ main.gallery-detail--dollhouse .gallery-detail__carousel-chevron--right {
 }
 
 main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
-  width: clamp(34px, 7vw, 52px);
-  height: clamp(34px, 7vw, 52px);
+  width: clamp(2.125rem, 7vw, 3.25rem);
+  height: clamp(2.125rem, 7vw, 3.25rem);
 }
 
 @keyframes mobile-scroll-hint-blink {
@@ -1343,7 +1357,7 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   .footer {
     padding-inline: 0;
     padding-top: 1rem;
-    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0));
     box-sizing: border-box;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
@@ -1383,8 +1397,8 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
 @media (max-width: 768px) {
   :root {
     --gallery-detail-chrome: 15.25rem;
-    --gallery-detail-media-min-w: min(220px, 88vw);
-    --gallery-detail-media-min-h: min(220px, 32vh);
+    --gallery-detail-media-min-w: min(13.75rem, 88vw);
+    --gallery-detail-media-min-h: min(13.75rem, 32vh);
     /*
      * 3:2 gallery detail carousels on phone (facetrack, weather room, t-shirt): shared max width/height
      * and frame cap — edit here only; matches Weather Room–style sizing.
@@ -1399,10 +1413,10 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
 
   /* Typeface detail (typeface.html): smaller PNG than default detail bounds on phones */
   main.gallery-detail--typeface {
-    --gallery-detail-media-max-w: min(74vw, 400px);
-    --gallery-detail-media-max-h: min(34vh, 340px);
-    --gallery-detail-media-min-w: min(140px, 64vw);
-    --gallery-detail-media-min-h: min(100px, 20vh);
+    --gallery-detail-media-max-w: min(74vw, 25rem);
+    --gallery-detail-media-max-h: min(34vh, 21.25rem);
+    --gallery-detail-media-min-w: min(8.75rem, 64vw);
+    --gallery-detail-media-min-h: min(6.25rem, 20vh);
   }
 
   /* Gallery detail on phone: no nav / clock — only work, copy, footer */
@@ -1415,11 +1429,11 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   }
 
   main.gallery-detail {
-    --gallery-detail-main-pad-x: max(16px, env(safe-area-inset-left, 0px));
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-top: max(12px, env(safe-area-inset-top, 0px));
-    padding-bottom: clamp(22px, 3.5vw, 44px);
+    --gallery-detail-main-pad-x: max(1rem, env(safe-area-inset-left, 0));
+    padding-left: max(1rem, env(safe-area-inset-left, 0));
+    padding-right: max(1rem, env(safe-area-inset-right, 0));
+    padding-top: max(0.75rem, env(safe-area-inset-top, 0));
+    padding-bottom: clamp(1.375rem, 3.5vw, 2.75rem);
   }
 
   /*
@@ -1444,7 +1458,7 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
    */
   main.gallery-detail--tshirt {
     --gallery-detail-media-max-w: min(
-      calc(100vw - 2 * var(--gallery-detail-main-pad-x, 16px)),
+      calc(100vw - 2 * var(--gallery-detail-main-pad-x, 1rem)),
       calc(var(--gallery-detail-art-max-w) * 1.1)
     );
     --gallery-detail-media-max-h: min(92svh, calc(var(--gallery-detail-art-max-h) * 1.15));
@@ -1507,8 +1521,8 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   }
 
   main.gallery-detail--dollhouse {
-    --gallery-detail-media-max-w: min(92vw, 640px);
-    --gallery-detail-media-max-h: min(68vh, 660px);
+    --gallery-detail-media-max-w: min(92vw, 40rem);
+    --gallery-detail-media-max-h: min(68vh, 41.25rem);
     --gallery-detail-carousel-cap-h: min(68vh, calc(var(--gallery-detail-media-max-h) * 1.32));
     --gallery-detail-carousel-cap-w: min(
       var(--gallery-detail-media-max-w),
@@ -1541,7 +1555,7 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
       calc(var(--gallery-detail-carousel-cap-h) * 4 / 3)
     );
     max-height: var(--gallery-detail-carousel-cap-h);
-    padding: 6px;
+    padding: 0.375rem;
     box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
@@ -1562,22 +1576,22 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
 
   .gallery.facetrack-page-single,
   .gallery.midnight-page-single {
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-left: max(1rem, env(safe-area-inset-left, 0));
+    padding-right: max(1rem, env(safe-area-inset-right, 0));
   }
 
   /* Detail media bounds use --gallery-detail-media-* from :root in this block */
 
   .gallery.facetrack-page-single,
   .gallery.midnight-page-single {
-    grid-template-columns: minmax(min(220px, 88vw), min(88vw, 440px));
+    grid-template-columns: minmax(min(13.75rem, 88vw), min(88vw, 27.5rem));
   }
 
   /* Index grid tiles: tighter mins on small screens (detail uses .gallery-detail__stage override) */
   .gallery.facetrack-page-single .face-track-slot,
   .gallery.midnight-page-single .gallery-midnight-tile {
-    min-width: min(220px, 88vw);
-    min-height: min(220px, 32vh);
+    min-width: min(13.75rem, 88vw);
+    min-height: min(13.75rem, 32vh);
   }
 }
 
@@ -1594,12 +1608,12 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
 ========================= */
 
 .gallery {
-  --gap: 16px;
+  --gap: 1rem;
   display: grid;
   gap: var(--gap);
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin-top: 40px;
-  margin-bottom: 80px;
+  margin-top: 2.5rem;
+  margin-bottom: 5rem;
 }
 
 /* Tablet layout */
@@ -1645,6 +1659,13 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   .gallery img.daddysgirl {
     --img-max-height: 96%;
     --img-max-width: 96%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .gallery img.daddysgirl {
+    --img-max-height: 91%;
+    --img-max-width: 91%;
   }
 }
 
@@ -1761,16 +1782,16 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: clamp(8px, 2vw, 18px);
+  padding: clamp(0.5rem, 2vw, 1.125rem);
   box-sizing: border-box;
 }
 
 .surveillance-webcam-placeholder__spinner {
   display: block;
-  width: clamp(30px, 6.5vw, 48px);
-  height: clamp(30px, 6.5vw, 48px);
+  width: clamp(1.875rem, 6.5vw, 3rem);
+  height: clamp(1.875rem, 6.5vw, 3rem);
   box-sizing: border-box;
-  border: 3px solid rgba(0, 255, 65, 0.2);
+  border: 0.1875rem solid rgba(0, 255, 65, 0.2);
   border-top-color: #00ff41;
   border-radius: 50%;
   transform-origin: center;
@@ -1793,10 +1814,10 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
 
 .surveillance-webcam-placeholder__sr {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: 0.0625rem;
+  height: 0.0625rem;
   padding: 0;
-  margin: -1px;
+  margin: -0.0625rem;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
@@ -1901,7 +1922,7 @@ main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wir
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(6px, 2vw, 14px);
+  padding: clamp(0.375rem, 2vw, 0.875rem);
   box-sizing: border-box;
   transition: none;
 }
@@ -1910,9 +1931,9 @@ main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wir
 .gallery .gallery-audio-slot .gallery-audio,
 .gallery-detail__stage .gallery-audio-slot .gallery-audio {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
+  width: 0.0625rem;
+  height: 0.0625rem;
+  margin: -0.0625rem;
   padding: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
@@ -1951,8 +1972,8 @@ main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wir
 
 .gallery .gallery-audio-visual:focus-visible,
 .gallery-detail__stage .gallery-audio-visual:focus-visible {
-  outline: 2px solid #003cff;
-  outline-offset: 4px;
+  outline: 0.125rem solid #003cff;
+  outline-offset: 0.25rem;
 }
 
 /* Hover / focus: centered play-pause disc (synced via .is-playing + [hidden] on glyphs) */
@@ -1984,15 +2005,15 @@ main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wir
   justify-content: center;
   flex-shrink: 0;
   /* One dimension + aspect-ratio keeps a true circle (border included via box-sizing) */
-  width: clamp(24px, 18.5%, 37px);
+  width: clamp(1.5rem, 18.5%, 2.3125rem);
   aspect-ratio: 1 / 1;
   height: auto;
   padding: 0;
   border-radius: 50%;
   background: rgba(30, 30, 35, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 0.0625rem solid rgba(255, 255, 255, 0.55);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0.25rem 0.875rem rgba(0, 0, 0, 0.35);
 }
 
 .gallery .gallery-audio-overlay-circle svg,
@@ -2008,13 +2029,13 @@ main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wir
 
 /* Music detail: larger play/pause control than index grid */
 .gallery-detail__stage .gallery-audio-overlay-circle {
-  width: clamp(40px, 28%, 58px);
-  border-width: 2px;
+  width: clamp(2.5rem, 28%, 3.625rem);
+  border-width: 0.125rem;
 }
 
 .gallery-detail__stage .gallery-audio-overlay-circle svg {
-  width: 22px;
-  height: 22px;
+  width: 1.375rem;
+  height: 1.375rem;
 }
 
 .gallery .gallery-audio-icon,
@@ -2079,7 +2100,7 @@ main.gallery-detail--globe-sphere .gallery-detail__globe-slot .gallery-globe-wir
   border-style: solid;
   border-color: #00ff41;
   /* Width set in face-track.js so grid + detail share the same stroke ratio at every size */
-  border-width: 3px;
+  border-width: 0.1875rem;
   background: transparent;
   pointer-events: none;
   z-index: 1;
@@ -2308,11 +2329,11 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: min(88vw, min(78vmin, 640px));
-  max-width: min(88vw, min(78vmin, 640px));
+  width: min(88vw, min(78vmin, 40rem));
+  max-width: min(88vw, min(78vmin, 40rem));
   aspect-ratio: 1 / 1;
-  max-height: min(66vh, 640px);
-  min-width: min(240px, 84vw);
+  max-height: min(66vh, 40rem);
+  min-width: min(15rem, 84vw);
   min-height: 0;
   flex-shrink: 0;
   margin: 0 auto;
@@ -2407,7 +2428,10 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    /* Nav buttons share one gap; clock→nav gets a touch more air */
+    --top-bar-stack-gap: 0.875rem;
+    --mobile-clock-scale: 1.65;
+    gap: 1.4rem;
     flex: 1 1 auto;
     min-height: 0;
     width: 100%;
@@ -2420,8 +2444,8 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     align-self: stretch;
     width: 100%;
     flex-shrink: 0;
-    padding-top: clamp(24px, 7vw, 48px);
-    padding-bottom: max(22px, env(safe-area-inset-bottom, 0px));
+    padding-top: clamp(1.5rem, 7vw, 3rem);
+    padding-bottom: max(1.375rem, env(safe-area-inset-bottom, 0));
     opacity: 1;
     transition: opacity 0.45s ease;
   }
@@ -2444,7 +2468,7 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
   .mobile-scroll-hint__btn {
     background: none;
     border: none;
-    padding: 10px 14px;
+    padding: 0.625rem 0.875rem;
     margin: 0;
     cursor: pointer;
     color: #ff00d9;
@@ -2458,8 +2482,8 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
 
   .mobile-scroll-hint__icon {
     display: block;
-    width: 48px;
-    height: 48px;
+    width: 3rem;
+    height: 3rem;
     animation: mobile-scroll-hint-blink 1.55s ease-in-out infinite;
   }
 
@@ -2484,12 +2508,12 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 0.875rem;
     position: static;
     min-height: 100svh;
     width: 100%;
     box-sizing: border-box;
-    padding: max(16px, env(safe-area-inset-top, 0px)) 16px max(20px, env(safe-area-inset-bottom, 0px));
+    padding: max(1rem, env(safe-area-inset-top, 0)) 1rem max(1.25rem, env(safe-area-inset-bottom, 0));
   }
 
   /* Index (gallery): cluster grows and centers clock + nav; scroll hint stays at bottom of first screen */
@@ -2502,62 +2526,55 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     order: -1;
     margin-left: 0;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Layout height = scaled clock so cluster gap matches visible spacing to first button */
+    min-height: calc(4.6875rem * var(--mobile-clock-scale));
   }
 
+  /*
+   * Same face, hands, and center as desktop (see base .clock / .clock-hand rules) — only scale up
+   * for touch; keeps proportions identical to the scaled desktop clock.
+   */
   .clock {
-    width: 135px;
-    height: 135px;
-    transform: none;
+    width: 4.6875rem;
+    height: 4.6875rem;
+    transform: scale(var(--mobile-clock-scale));
+    transform-origin: center center;
   }
 
   .clock:hover {
-    transform: translateY(-2px);
+    transform: translateY(-0.125rem) scale(var(--mobile-clock-scale));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.45),
-      0 6px 22px rgba(0, 0, 0, 0.12);
+      inset 0 0.0625rem 0 rgba(255, 255, 255, 0.45),
+      0 0.375rem 1.375rem rgba(0, 0, 0, 0.12);
   }
 
   .clock:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(var(--mobile-clock-scale));
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.42),
-      0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .hour-hand {
-    width: 45px;
-    height: 3px;
-  }
-
-  .minute-hand,
-  .second-hand {
-    width: 60px;
-    height: 2px;
-  }
-
-  .clock-center {
-    width: 9px;
-    height: 9px;
-    border-width: 2px;
+      inset 0 0.0625rem 0 rgba(255, 255, 255, 0.42),
+      0 0.25rem 1rem rgba(0, 0, 0, 0.1);
   }
 
   .top-actions {
     flex-direction: column;
     align-items: center;
-    gap: 14px;
+    gap: var(--top-bar-stack-gap);
   }
 
   .top-actions .nav-button {
     font-size: 1.5em;
-    padding: 23px 18px;
+    padding: 1.4375rem 1.125rem;
   }
 
   .profile-content {
-    margin-left: 16px;
-    margin-right: 16px;
+    margin-left: 1rem;
+    margin-right: 1rem;
     margin-top: 0;
-    padding-top: 20px;
-    margin-bottom: 52px;
+    padding-top: 1.25rem;
+    margin-bottom: 3.25rem;
     max-width: none;
   }
 
@@ -2573,7 +2590,7 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     margin: 0 0 0.18em 0;
   }
 
-  /* Gallery detail: main already provides horizontal inset — match bio’s 16px side margins without doubling */
+  /* Gallery detail: main already provides horizontal inset — match bio’s 1rem side margins without doubling */
   main.gallery-detail .gallery-detail__details.profile-content {
     margin-left: 0;
     margin-right: 0;
@@ -2581,10 +2598,10 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
   }
 
   .gallery {
-    gap: 8px;
+    gap: 0.5rem;
     grid-template-columns: 1fr;
     margin-top: 0;
-    padding: 20px 16px 0;
+    padding: 1.25rem 1rem 0;
     box-sizing: border-box;
   }
 
@@ -2606,7 +2623,7 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
   .gallery .gallery-iframe-slot.spring-3d {
     transform: scale(1.1);
     transform-origin: center center;
-    margin-bottom: clamp(10px, 3.5vw, 22px);
+    margin-bottom: clamp(0.625rem, 3.5vw, 1.375rem);
   }
 
   .gallery .gallery-iframe-slot.spring-3d:hover {
@@ -2647,9 +2664,9 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
 
   .gallery-detail__stage .gallery-arrow-spin {
     --img-max-height: 76%;
-    width: min(80vw, min(76vmin, 460px));
-    max-width: min(80vw, min(76vmin, 460px));
-    max-height: min(52vh, 460px);
+    width: min(80vw, min(76vmin, 28.75rem));
+    max-width: min(80vw, min(76vmin, 28.75rem));
+    max-height: min(52vh, 28.75rem);
   }
 
   .gallery .gallery-arrow-spin__img {
@@ -2665,13 +2682,13 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     justify-content: center;
     width: 100%;
     box-sizing: border-box;
-    padding: 0 16px max(28px, env(safe-area-inset-bottom, 0px));
+    padding: 0 1rem max(1.75rem, env(safe-area-inset-bottom, 0));
   }
 
   body:has(main.gallery-detail) .nav-button.gallery-detail__back {
     border-radius: 9999px;
     font-size: 1.5em;
-    padding: 23px 18px;
+    padding: 1.4375rem 1.125rem;
   }
 
 }
