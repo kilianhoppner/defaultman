@@ -98,7 +98,7 @@ const TOILET_ROLL = {
   /** Roll length along axis — one value so tile and detail match */
   rollWidth: 0.6,
   brownWall: 0.0045,
-  curveSegments: 50,
+  curveSegments: 100,
   coreDepthScale: 1.002,
 
   rotationOsc: { ...ROTATION_OSC },

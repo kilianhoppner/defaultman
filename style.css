@@ -71,6 +71,69 @@ body {
   text-decoration: underline;
 }
 
+/*
+ * Footer markup is wrapped by script.js. Viewports ≤1024px: scrolling ticker (see media query).
+ * Desktop ≥1025px: static centered block (duplicate segment hidden).
+ */
+.footer-marquee {
+  overflow: visible;
+  width: 100%;
+  margin: 0;
+}
+
+.footer-marquee__track {
+  display: inline-flex;
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: none;
+  transform: none;
+  will-change: auto;
+}
+
+.footer-marquee__segment--duplicate {
+  display: none !important;
+}
+
+.footer-marquee__segment {
+  flex-shrink: 0;
+  padding-inline-end: 0;
+  white-space: normal;
+  text-align: center;
+}
+
+@keyframes footer-marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-marquee {
+    overflow: visible;
+  }
+
+  .footer-marquee__track {
+    animation: none !important;
+    transform: none !important;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .footer-marquee__segment--duplicate {
+    display: none !important;
+  }
+
+  .footer-marquee__segment {
+    padding-inline-end: 0;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
 .hyperlink,
 .hyperlink:visited,
 .hyperlink:active {
@@ -784,11 +847,554 @@ section.gallery.midnight-page-single ~ footer.footer {
   min-height: var(--gallery-detail-media-min-h);
 }
 
+/* Gallery detail carousels: 3:2 frame, pink chevrons (#Surveillancecore, The Weather Room). */
+main.gallery-detail--facetrack {
+  --gallery-detail-carousel-cap-h: min(51vh, calc(var(--gallery-detail-media-max-h) * 1.12));
+  --gallery-detail-carousel-cap-w: min(
+    var(--gallery-detail-media-max-w),
+    calc(var(--gallery-detail-carousel-cap-h) * 3 / 2)
+  );
+}
+
+/* T-shirt detail: 3:2 carousel (larger frame + first slide on desktop vs default facetrack caps) */
+main.gallery-detail--tshirt {
+  --gallery-detail-carousel-cap-h: min(56vh, calc(var(--gallery-detail-media-max-h) * 1.2));
+  --gallery-detail-carousel-cap-w: min(
+    var(--gallery-detail-media-max-w),
+    calc(var(--gallery-detail-carousel-cap-h) * 3 / 2)
+  );
+}
+
+@media (min-width: 769px) {
+  main.gallery-detail--tshirt .gallery-detail__carousel-slide--tshirt-first .gallery-detail__carousel-media {
+    width: min(100%, calc(var(--gallery-detail-carousel-cap-w) * 1.18));
+    max-height: calc(var(--gallery-detail-carousel-cap-h) * 1.18);
+  }
+}
+
+/* Weather Room detail: modestly larger media + frame than default detail caps so every slide scales up a touch. */
+main.gallery-detail--weatherroom {
+  --gallery-detail-media-max-w: min(91vw, calc(var(--gallery-detail-art-max-w) * 1.05));
+  --gallery-detail-media-max-h: min(71vh, calc(var(--gallery-detail-art-max-h) * 1.06));
+  --gallery-detail-carousel-cap-h: min(53vh, calc(var(--gallery-detail-media-max-h) * 1.12));
+  --gallery-detail-carousel-cap-w: min(
+    var(--gallery-detail-media-max-w),
+    calc(var(--gallery-detail-carousel-cap-h) * 3 / 2)
+  );
+}
+
+/*
+ * Dollhouse carousel: artwork is portrait-ish — 3:2 letterboxes it. Taller cap + 3:4 frame fills
+ * the stage similarly to other detail images.
+ */
+main.gallery-detail--dollhouse {
+  --gallery-detail-media-max-w: min(84vw, var(--gallery-detail-art-max-w));
+  --gallery-detail-media-max-h: min(min(68vh, 74svh), var(--gallery-detail-art-max-h));
+  --gallery-detail-carousel-cap-h: min(min(65vh, 71svh), calc(var(--gallery-detail-media-max-h) * 1.15));
+  --gallery-detail-carousel-cap-w: min(
+    var(--gallery-detail-media-max-w),
+    calc(var(--gallery-detail-carousel-cap-h) * 3 / 4)
+  );
+}
+
+main.gallery-detail--facetrack .gallery-detail__stage,
+main.gallery-detail--weatherroom .gallery-detail__stage,
+main.gallery-detail--tshirt .gallery-detail__stage,
+main.gallery-detail--dollhouse .gallery-detail__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel,
+main.gallery-detail--weatherroom .gallery-detail__carousel,
+main.gallery-detail--tshirt .gallery-detail__carousel,
+main.gallery-detail--dollhouse .gallery-detail__carousel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(6px, 1.5vw, 14px);
+  width: 100%;
+  max-width: calc(var(--gallery-detail-media-max-w) + 7rem);
+  margin-top: 0;
+  box-sizing: border-box;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-viewport,
+main.gallery-detail--weatherroom .gallery-detail__carousel-viewport,
+main.gallery-detail--tshirt .gallery-detail__carousel-viewport,
+main.gallery-detail--dollhouse .gallery-detail__carousel-viewport {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--gallery-detail-media-max-w);
+  overflow: hidden;
+  opacity: 1;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-track,
+main.gallery-detail--weatherroom .gallery-detail__carousel-track,
+main.gallery-detail--tshirt .gallery-detail__carousel-track,
+main.gallery-detail--dollhouse .gallery-detail__carousel-track {
+  display: flex;
+  align-items: flex-start;
+  transition: transform 0.42s ease;
+  will-change: transform;
+}
+
+/* Shorter slides (e.g. notification strip) match 3:2 siblings’ track height; center vs flex-start so they sit between the chevrons. */
+main.gallery-detail--facetrack .gallery-detail__carousel-track,
+main.gallery-detail--tshirt .gallery-detail__carousel-track {
+  align-items: center;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-track--no-transition,
+main.gallery-detail--weatherroom .gallery-detail__carousel-track--no-transition,
+main.gallery-detail--tshirt .gallery-detail__carousel-track--no-transition,
+main.gallery-detail--dollhouse .gallery-detail__carousel-track--no-transition {
+  transition: none;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-slide,
+main.gallery-detail--weatherroom .gallery-detail__carousel-slide,
+main.gallery-detail--tshirt .gallery-detail__carousel-slide,
+main.gallery-detail--dollhouse .gallery-detail__carousel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+/*
+ * Shared frame: strict 3:2 (width = height × 1.5). cap-w + cap-h keep the box from growing “tall”
+ * when only max-width was limiting it.
+ */
+main.gallery-detail--facetrack .gallery-detail__carousel-media,
+main.gallery-detail--weatherroom .gallery-detail__carousel-media,
+main.gallery-detail--tshirt .gallery-detail__carousel-media,
+main.gallery-detail--dollhouse .gallery-detail__carousel-media {
+  box-sizing: border-box;
+  position: relative;
+  width: min(100%, var(--gallery-detail-carousel-cap-w));
+  max-width: 100%;
+  max-height: var(--gallery-detail-carousel-cap-h);
+  aspect-ratio: 3 / 2;
+  height: auto;
+  flex: 0 0 auto;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+main.gallery-detail--dollhouse .gallery-detail__carousel-media {
+  aspect-ratio: 3 / 4;
+}
+
+@media (min-width: 769px) {
+  main.gallery-detail--dollhouse .gallery-detail__carousel-slide--dollhouse-print .gallery-detail__carousel-media > img {
+    transform: scale(0.99);
+    transform-origin: center center;
+  }
+
+  /*
+   * Sketch is wider than the UV print — a 4:3 media frame (vs 3:4) lets object-fit: contain
+   * show the full drawing larger without transform overflow cropping the sides.
+   */
+  main.gallery-detail--dollhouse .gallery-detail__carousel-slide--dollhouse-sketch .gallery-detail__carousel-media {
+    aspect-ratio: 4 / 3;
+    width: min(
+      100%,
+      var(--gallery-detail-media-max-w),
+      calc(var(--gallery-detail-carousel-cap-h) * 4 / 3 * 0.96)
+    );
+    max-height: var(--gallery-detail-carousel-cap-h);
+  }
+
+  main.gallery-detail--dollhouse .gallery-detail__carousel-slide--dollhouse-hockney .gallery-detail__carousel-media {
+    aspect-ratio: 1 / 1;
+    width: min(100%, var(--gallery-detail-media-max-w), var(--gallery-detail-carousel-cap-h));
+    max-height: var(--gallery-detail-carousel-cap-h);
+  }
+}
+
+/*
+ * Weather Room carousel slide: 11:8.5 letter proportions; desktop a bit larger than index tile
+ * (wider + scale). Phones: see @media (max-width: 768px) override.
+ */
+main.gallery-detail--weatherroom .gallery-detail__carousel-media .gallery-weatherroom {
+  --img-max-width: 96%;
+  --pdf-orange: #ff7300;
+  --pdf-blue: #0033ff;
+  --weatherroom-scale: 0.9;
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  max-width: min(100%, var(--img-max-width, 100%));
+  aspect-ratio: 11 / 8.5;
+  max-height: none;
+  height: auto;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  background: var(--pdf-orange);
+  transform: translate(-50%, -50%) scale(var(--weatherroom-scale));
+  transform-origin: center center;
+  transition: none;
+  justify-self: unset;
+  align-self: unset;
+  flex-shrink: 0;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-slide--iframe .gallery-detail__carousel-media,
+main.gallery-detail--facetrack .gallery-detail__carousel-slide--facetrack .gallery-detail__carousel-media,
+main.gallery-detail--weatherroom .gallery-detail__carousel-slide--weatherroom-sketch .gallery-detail__carousel-media {
+  background: transparent;
+}
+
+/*
+ * Motion-notification asset is a wide strip with alpha. A 3:2 frame letterboxes it heavily; some engines
+ * paint black in those bands unless the frame matches the artwork and backgrounds stay transparent.
+ */
+main.gallery-detail--facetrack .gallery-detail__carousel-slide--surveillance-notification .gallery-detail__carousel-media {
+  background: transparent;
+  aspect-ratio: 4452 / 1016;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-slide--surveillance-notification .gallery-detail__carousel-media > img {
+  background: transparent;
+  background-color: transparent;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media .surveillance-embed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media .surveillance-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  z-index: 1;
+  transition: none;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media .surveillance-webcam-placeholder {
+  transition: none;
+}
+
+/* Native face-track tile fills the same 3:2 frame as the iframe slide */
+main.gallery-detail--facetrack .gallery-detail__carousel-media .face-track-slot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: unset;
+  justify-self: stretch;
+  align-self: stretch;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media .face-track-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
+ * Placeholder square only on the real face-track tile — carousel loop clones must not draw a
+ * second green rect (face-track.js never runs there; it would sit wrong vs the live outline).
+ */
+main.gallery-detail--facetrack
+  .gallery-detail__carousel-media
+  .face-track-slot:not(.face-track-slot--carousel-clone)
+  .face-track-outline {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: #00ff41;
+  border-width: 3px;
+  background: transparent;
+  pointer-events: none;
+  z-index: 1;
+  transform: scale(1);
+  transform-origin: center center;
+  opacity: 1;
+  left: 14%;
+  top: 14%;
+  width: 72%;
+  aspect-ratio: 1;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  main.gallery-detail--facetrack
+    .gallery-detail__carousel-media
+    .face-track-slot:not(.face-track-slot--carousel-clone)
+    .face-track-outline {
+    left: 12.5%;
+    top: 12.5%;
+    width: 75%;
+  }
+}
+
+/* Carousel loop clones: decorative only (no second camera / duplicate #faceTrackSlot). */
+main.gallery-detail--facetrack .face-track-slot--carousel-clone .face-track-video {
+  display: none;
+}
+
+main.gallery-detail--facetrack .face-track-slot--carousel-clone .face-track-outline {
+  opacity: 0;
+  visibility: hidden;
+  border: none;
+  pointer-events: none;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media > img,
+main.gallery-detail--weatherroom .gallery-detail__carousel-media > img,
+main.gallery-detail--tshirt .gallery-detail__carousel-media > img,
+main.gallery-detail--dollhouse .gallery-detail__carousel-media > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  vertical-align: middle;
+}
+
+main.gallery-detail--weatherroom .gallery-detail__carousel-media > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  vertical-align: middle;
+  background: #0a0a0a;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media picture,
+main.gallery-detail--weatherroom .gallery-detail__carousel-media picture,
+main.gallery-detail--tshirt .gallery-detail__carousel-media picture,
+main.gallery-detail--dollhouse .gallery-detail__carousel-media picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-media picture img,
+main.gallery-detail--weatherroom .gallery-detail__carousel-media picture img,
+main.gallery-detail--tshirt .gallery-detail__carousel-media picture img,
+main.gallery-detail--dollhouse .gallery-detail__carousel-media picture img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  vertical-align: middle;
+}
+
+/*
+ * Motion asset fallback is often a single-frame JPEG; subtle pan/zoom reads as motion until a real GIF/video replaces it.
+ */
+main.gallery-detail--facetrack .gallery-detail__carousel-slide--motion img.gallery-detail__carousel-motion-img {
+  animation: gallery-detail-carousel-motion-pan 16s ease-in-out infinite alternate;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes gallery-detail-carousel-motion-pan {
+  0% {
+    transform: scale(1) translate(0%, 0%);
+  }
+  100% {
+    transform: scale(1.1) translate(-2.5%, -1.5%);
+  }
+}
+
+/* Slight fade on slide change (all gallery detail carousels). Synced to track transform duration. */
+@keyframes gallery-detail-carousel-viewport-fade {
+  0% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.gallery-detail__carousel[data-infinite-carousel] .gallery-detail__carousel-viewport.gallery-detail__carousel-viewport--fading {
+  animation: gallery-detail-carousel-viewport-fade 0.32s ease;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel .mobile-scroll-hint__btn,
+main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__btn,
+main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__btn,
+main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__btn {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  margin: 0;
+  cursor: pointer;
+  color: #ff00d9;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel .mobile-scroll-hint__btn:active,
+main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__btn:active,
+main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__btn:active,
+main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__btn:active {
+  opacity: 0.65;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel .mobile-scroll-hint__icon,
+main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__icon,
+main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__icon,
+main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__icon {
+  display: block;
+  width: 48px;
+  height: 48px;
+  animation: mobile-scroll-hint-blink 1.55s ease-in-out infinite;
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-chevron--left,
+main.gallery-detail--weatherroom .gallery-detail__carousel-chevron--left,
+main.gallery-detail--tshirt .gallery-detail__carousel-chevron--left,
+main.gallery-detail--dollhouse .gallery-detail__carousel-chevron--left {
+  transform: rotate(90deg);
+}
+
+main.gallery-detail--facetrack .gallery-detail__carousel-chevron--right,
+main.gallery-detail--weatherroom .gallery-detail__carousel-chevron--right,
+main.gallery-detail--tshirt .gallery-detail__carousel-chevron--right,
+main.gallery-detail--dollhouse .gallery-detail__carousel-chevron--right {
+  transform: rotate(-90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.gallery-detail--facetrack .gallery-detail__carousel .mobile-scroll-hint__icon,
+  main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__icon,
+  main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__icon,
+  main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__icon {
+    animation: none;
+    opacity: 0.52;
+  }
+
+  main.gallery-detail--facetrack .gallery-detail__carousel-slide--motion img.gallery-detail__carousel-motion-img {
+    animation: none;
+  }
+
+  .gallery-detail__carousel[data-infinite-carousel] .gallery-detail__carousel-viewport.gallery-detail__carousel-viewport--fading {
+    animation: none;
+  }
+}
+
+main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
+  width: clamp(34px, 7vw, 52px);
+  height: clamp(34px, 7vw, 52px);
+}
+
+@keyframes mobile-scroll-hint-blink {
+  0%,
+  100% {
+    opacity: 0.32;
+  }
+  50% {
+    opacity: 0.82;
+  }
+}
+
+/*
+ * Footer marquee + edge-to-edge: phones and tablets (viewport ≤1024px).
+ * Desktop ≥1025px: static centered footer in base .footer / .footer-marquee rules.
+ */
+@media (max-width: 1024px) {
+  .footer {
+    padding-inline: 0;
+    padding-top: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    --footer-marquee-duration: 45s;
+  }
+
+  .footer-marquee {
+    overflow: hidden;
+    text-align: start;
+  }
+
+  .footer-marquee__track {
+    display: inline-flex;
+    width: max-content;
+    max-width: none;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    animation: footer-marquee-scroll var(--footer-marquee-duration) linear infinite;
+    will-change: transform;
+  }
+
+  .footer:hover .footer-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .footer-marquee__segment--duplicate {
+    display: block !important;
+  }
+
+  .footer-marquee__segment {
+    padding-inline-end: 1.25em;
+    white-space: nowrap;
+    text-align: left;
+  }
+}
+
 @media (max-width: 768px) {
   :root {
     --gallery-detail-chrome: 15.25rem;
     --gallery-detail-media-min-w: min(220px, 88vw);
     --gallery-detail-media-min-h: min(220px, 32vh);
+    /*
+     * 3:2 gallery detail carousels on phone (facetrack, weather room, t-shirt): shared max width/height
+     * and frame cap — edit here only; matches Weather Room–style sizing.
+     */
+    --gallery-detail-carousel-mobile-media-max-w: min(93vw, calc(var(--gallery-detail-art-max-w) * 1.05));
+    --gallery-detail-carousel-mobile-media-max-h: min(72vh, calc(var(--gallery-detail-art-max-h) * 1.06));
+    --gallery-detail-carousel-mobile-cap-h: min(
+      74vh,
+      calc(var(--gallery-detail-carousel-mobile-media-max-h) * 1.42)
+    );
   }
 
   /* Typeface detail (typeface.html): smaller PNG than default detail bounds on phones */
@@ -814,6 +1420,144 @@ section.gallery.midnight-page-single ~ footer.footer {
     padding-right: max(16px, env(safe-area-inset-right, 0px));
     padding-top: max(12px, env(safe-area-inset-top, 0px));
     padding-bottom: clamp(22px, 3.5vw, 44px);
+  }
+
+  /*
+   * 3:2 carousels — #Surveillancecore, Weather Room, t-shirt: same mobile bounds via :root
+   * --gallery-detail-carousel-mobile-* (viewport + art caps + 3:2 frame height).
+   */
+  main.gallery-detail--facetrack,
+  main.gallery-detail--weatherroom,
+  main.gallery-detail--tshirt {
+    --gallery-detail-media-max-w: var(--gallery-detail-carousel-mobile-media-max-w);
+    --gallery-detail-media-max-h: var(--gallery-detail-carousel-mobile-media-max-h);
+    --gallery-detail-carousel-cap-h: var(--gallery-detail-carousel-mobile-cap-h);
+    --gallery-detail-carousel-cap-w: min(
+      var(--gallery-detail-media-max-w),
+      calc(var(--gallery-detail-carousel-cap-h) * 3 / 2)
+    );
+  }
+
+  /*
+   * T-shirt only: portrait-friendly frame on phone. A 3:2 box limits height to ~⅔ of width, so
+   * vertical product shots stay tiny — use 3:4 + cap-w from height (same idea as dollhouse).
+   */
+  main.gallery-detail--tshirt {
+    --gallery-detail-media-max-w: min(
+      calc(100vw - 2 * var(--gallery-detail-main-pad-x, 16px)),
+      calc(var(--gallery-detail-art-max-w) * 1.1)
+    );
+    --gallery-detail-media-max-h: min(92svh, calc(var(--gallery-detail-art-max-h) * 1.15));
+    --gallery-detail-carousel-cap-h: min(88svh, calc(var(--gallery-detail-media-max-h) * 1.72));
+    --gallery-detail-carousel-cap-w: min(
+      var(--gallery-detail-media-max-w),
+      calc(var(--gallery-detail-carousel-cap-h) * 3 / 4)
+    );
+  }
+
+  main.gallery-detail--tshirt .gallery-detail__carousel-media {
+    aspect-ratio: 3 / 4;
+  }
+
+  /* Let the carousel use full main width on phone (padding already on main). */
+  main.gallery-detail--tshirt .gallery-detail__carousel-viewport {
+    max-width: 100%;
+  }
+
+  /*
+   * First t-shirt slide: portrait asset in a full-width×tall box is limited by WIDTH, so the photo
+   * stays tiny. Match the frame to the file aspect (869×966) and cap by height so contain fills it.
+   */
+  main.gallery-detail--tshirt .gallery-detail__carousel-slide--tshirt-first {
+    min-height: 0;
+    align-items: center;
+  }
+
+  main.gallery-detail--tshirt .gallery-detail__carousel-slide--tshirt-first .gallery-detail__carousel-media {
+    flex-shrink: 0;
+    aspect-ratio: 869 / 966;
+    height: min(86svh, 92dvh);
+    width: auto;
+    max-width: 100%;
+    max-height: min(86svh, 92dvh);
+  }
+
+  main.gallery-detail--tshirt .gallery-detail__carousel-slide--tshirt-first .gallery-detail__carousel-media > img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  /*
+   * Safari/iOS: the carousel track is transformed; PNG alpha beside the artwork can composite as black.
+   * White backing matches the page so transparent pixels read correctly on phones.
+   */
+  main.gallery-detail--facetrack .gallery-detail__carousel-slide--surveillance-notification .gallery-detail__carousel-media {
+    background-color: #fff;
+    isolation: isolate;
+  }
+
+  main.gallery-detail--facetrack .gallery-detail__carousel-slide--surveillance-notification .gallery-detail__carousel-media > img {
+    background-color: #fff;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  main.gallery-detail--dollhouse {
+    --gallery-detail-media-max-w: min(92vw, 640px);
+    --gallery-detail-media-max-h: min(68vh, 660px);
+    --gallery-detail-carousel-cap-h: min(68vh, calc(var(--gallery-detail-media-max-h) * 1.32));
+    --gallery-detail-carousel-cap-w: min(
+      var(--gallery-detail-media-max-w),
+      calc(var(--gallery-detail-carousel-cap-h) * 3 / 4)
+    );
+  }
+
+  /*
+   * Dollhouse phone: track defaults to align-items:flex-start so shorter slides (sketch) hug the
+   * top while chevrons are align-items:center — vertically center slides in the track.
+   */
+  main.gallery-detail--dollhouse .gallery-detail__carousel-track {
+    align-items: center;
+  }
+
+  /*
+   * Sketch on phone: wider 4:3 frame matches the drawing’s proportions better than 3:4; padding
+   * inside the media box (border-box) keeps object-fit: contain off the overflow:hidden edges.
+   */
+  main.gallery-detail--dollhouse .gallery-detail__carousel-slide--dollhouse-sketch {
+    justify-content: center;
+    align-items: center;
+  }
+
+  main.gallery-detail--dollhouse .gallery-detail__carousel-slide--dollhouse-sketch .gallery-detail__carousel-media {
+    aspect-ratio: 4 / 3;
+    width: min(
+      100%,
+      var(--gallery-detail-media-max-w),
+      calc(var(--gallery-detail-carousel-cap-h) * 4 / 3)
+    );
+    max-height: var(--gallery-detail-carousel-cap-h);
+    padding: 6px;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    align-self: center;
+  }
+
+  main.gallery-detail--dollhouse
+    .gallery-detail__carousel-slide--dollhouse-sketch
+    .gallery-detail__carousel-media
+    > img {
+    object-position: center center;
+  }
+
+  main.gallery-detail--weatherroom .gallery-detail__carousel-media .gallery-weatherroom {
+    --img-max-width: 96%;
+    --weatherroom-scale: 0.95;
   }
 
   .gallery.facetrack-page-single,
@@ -892,6 +1636,18 @@ section.gallery.midnight-page-single ~ footer.footer {
 
 .gallery img.mens-rights { --img-max-height: 60%; }
 .gallery img.cable { --img-max-height: 55%; --img-rotate: 0.5deg; }
+.gallery img.daddysgirl {
+  --img-max-height: 88%;
+  --img-max-width: 88%;
+}
+
+@media (max-width: 768px) {
+  .gallery img.daddysgirl {
+    --img-max-height: 96%;
+    --img-max-width: 96%;
+  }
+}
+
 .gallery .face-track-slot,
 .gallery .gallery-iframe-slot,
 .gallery .gallery-video-slot,
@@ -991,6 +1747,86 @@ section.gallery.midnight-page-single ~ footer.footer {
   display: block;
 }
 
+/*
+ * Green loading spinner while iframe is hidden. Sketch posts camera-active to reveal iframe;
+ * camera-inactive / denied shows this again (no black box).
+ */
+.surveillance-webcam-placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(8px, 2vw, 18px);
+  box-sizing: border-box;
+}
+
+.surveillance-webcam-placeholder__spinner {
+  display: block;
+  width: clamp(30px, 6.5vw, 48px);
+  height: clamp(30px, 6.5vw, 48px);
+  box-sizing: border-box;
+  border: 3px solid rgba(0, 255, 65, 0.2);
+  border-top-color: #00ff41;
+  border-radius: 50%;
+  transform-origin: center;
+  animation: surveillance-webcam-spinner 0.7s linear infinite;
+}
+
+@keyframes surveillance-webcam-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surveillance-webcam-placeholder__spinner {
+    animation: none;
+    border-color: rgba(0, 255, 65, 0.35);
+    border-top-color: #00ff41;
+  }
+}
+
+.surveillance-webcam-placeholder__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.surveillance-embed iframe {
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.surveillance-embed:not(.surveillance-embed--camera-active) iframe {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.surveillance-embed.surveillance-embed--camera-active iframe {
+  opacity: 1;
+  visibility: visible;
+}
+
+.surveillance-embed.surveillance-embed--camera-active .surveillance-webcam-placeholder {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.surveillance-embed:not(.surveillance-embed--camera-active) .surveillance-webcam-placeholder {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* Incoming clip snaps on; only outgoing fades — avoids white slot showing through */
 .gallery .gallery-video-slot__video {
   position: absolute;
@@ -1022,7 +1858,8 @@ section.gallery.midnight-page-single ~ footer.footer {
 
 .gallery .gallery-iframe-slot--with-overlay iframe,
 .gallery .gallery-iframe-slot--with-overlay model-viewer,
-.gallery .gallery-iframe-slot--with-overlay .gallery-toiletroll-3d__viewer {
+.gallery .gallery-iframe-slot--with-overlay .gallery-toiletroll-3d__viewer,
+.gallery .gallery-iframe-slot--with-overlay .face-track-video {
   pointer-events: none;
 }
 
@@ -1626,16 +2463,6 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     animation: mobile-scroll-hint-blink 1.55s ease-in-out infinite;
   }
 
-  @keyframes mobile-scroll-hint-blink {
-    0%,
-    100% {
-      opacity: 0.32;
-    }
-    50% {
-      opacity: 0.82;
-    }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .mobile-scroll-hint__icon {
       animation: none;
@@ -1766,17 +2593,6 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     max-height: min(88%, 11rem);
   }
 
-  .footer {
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    padding-top: 1rem;
-    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
-    box-sizing: border-box;
-    /* 100vw already; keep edge-to-edge on phones */
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-  }
-
   .gallery .gallery-midnight-time {
     font-size: clamp(2.25rem, 16vw, 4rem);
   }
@@ -1858,4 +2674,30 @@ section.gallery:not(.facetrack-page-single) .face-track-outline {
     padding: 23px 18px;
   }
 
+}
+
+/* Phones/tablets + reduced motion: static footer (overrides marquee ≤1024px). */
+@media (max-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .footer-marquee {
+    overflow: visible;
+  }
+
+  .footer-marquee__track {
+    animation: none !important;
+    transform: none !important;
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .footer-marquee__segment--duplicate {
+    display: none !important;
+  }
+
+  .footer-marquee__segment {
+    padding-inline-end: 0;
+    white-space: normal;
+    text-align: center;
+  }
 }

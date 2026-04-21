@@ -99,7 +99,8 @@
     if (window.innerWidth <= MOBILE_MAX_WIDTH) {
       return onGalleryDetail() ? 0.75 : 0.44;
     }
-    return onGalleryDetail() ? 0.65 : 0.34;
+    /* Desktop: larger square on gallery detail (carousel) vs index grid tile */
+    return onGalleryDetail() ? 0.72 : 0.34;
   }
 
   /** One stroke rule for index + detail: proportional to box, clamped (matches ~4px on typical grid tile). */
@@ -165,7 +166,11 @@
 
     if (!targetBox) {
       displayBox = null;
-      outline.style.opacity = '0';
+      if (onGalleryDetail()) {
+        placeFallbackBox(W, H);
+      } else {
+        outline.style.opacity = '0';
+      }
       return;
     }
 

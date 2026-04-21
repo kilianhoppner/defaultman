@@ -505,6 +505,41 @@ function setupHorseVideoSeamlessLoop() {
   });
 }
 
+/** Infinite horizontal ticker (duplicate segment + translate) for all footers. */
+function setupFooterMarquee() {
+  document.querySelectorAll('footer.footer').forEach((footer) => {
+    if (footer.dataset.footerMarqueeInit === '1') return;
+    if (footer.querySelector('.footer-marquee')) return;
+    if (!footer.childNodes.length) return;
+
+    const track = document.createElement('div');
+    track.className = 'footer-marquee__track';
+
+    const seg1 = document.createElement('div');
+    seg1.className = 'footer-marquee__segment';
+
+    while (footer.firstChild) {
+      seg1.appendChild(footer.firstChild);
+    }
+
+    const seg2 = seg1.cloneNode(true);
+    seg2.classList.add('footer-marquee__segment--duplicate');
+    seg2.setAttribute('aria-hidden', 'true');
+    seg2.querySelectorAll('a').forEach((a) => a.setAttribute('tabindex', '-1'));
+
+    track.appendChild(seg1);
+    track.appendChild(seg2);
+
+    const wrap = document.createElement('div');
+    wrap.className = 'footer-marquee';
+    wrap.setAttribute('role', 'presentation');
+    wrap.appendChild(track);
+
+    footer.appendChild(wrap);
+    footer.dataset.footerMarqueeInit = '1';
+  });
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     setupLondonClock();
@@ -517,6 +552,7 @@ if (document.readyState === 'loading') {
     tryRestoreGalleryScrollOnIndex();
     setupMobileGalleryScrollHint();
     setupHorseVideoSeamlessLoop();
+    setupFooterMarquee();
   });
 } else {
   setupLondonClock();
@@ -529,4 +565,5 @@ if (document.readyState === 'loading') {
   tryRestoreGalleryScrollOnIndex();
   setupMobileGalleryScrollHint();
   setupHorseVideoSeamlessLoop();
+  setupFooterMarquee();
 }
