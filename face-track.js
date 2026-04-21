@@ -95,8 +95,16 @@
     return Boolean(slot.closest('main.gallery-detail'));
   }
 
+  /** #Surveillancecore detail: native camera slide (first carousel item) — class is detail-only. */
+  function isSurveillancecoreDetailNativeSlide() {
+    return Boolean(slot.closest('.gallery-detail__carousel-slide--facetrack'));
+  }
+
   function faceBoxFraction() {
     if (window.innerWidth <= MOBILE_MAX_WIDTH) {
+      if (onGalleryDetail() && isSurveillancecoreDetailNativeSlide()) {
+        return 0.92;
+      }
       return onGalleryDetail() ? 0.75 : 0.44;
     }
     /* Desktop: larger square on gallery detail (carousel) vs index grid tile */

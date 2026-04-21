@@ -43,7 +43,9 @@ function setupClockDesktopExpand() {
   function computeScale() {
     const v = Math.min(window.innerWidth, window.innerHeight);
     const targetDiameter = v * 0.78;
-    const baseVisual = 75 * 1.2;
+    /* Match CSS: .clock is 4.6875rem (75px at 16px root) × transform scale(1.2). */
+    const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const baseVisual = (75 / 16) * rootPx * 1.2;
     return Math.min(12, Math.max(3, targetDiameter / baseVisual));
   }
 

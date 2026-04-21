@@ -1183,9 +1183,10 @@ main.gallery-detail--facetrack
     .gallery-detail__carousel-media
     .face-track-slot:not(.face-track-slot--carousel-clone)
     .face-track-outline {
-    left: 12.5%;
-    top: 12.5%;
-    width: 75%;
+    /* Matches faceBoxFraction() 0.92 on this slide before face-track.js runs */
+    left: 4%;
+    top: 4%;
+    width: 92%;
   }
 }
 
@@ -1415,14 +1416,20 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
     --gallery-detail-media-min-w: min(13.75rem, 88vw);
     --gallery-detail-media-min-h: min(13.75rem, 32vh);
     /*
-     * 3:2 gallery detail carousels on phone (facetrack, weather room, t-shirt): shared max width/height
-     * and frame cap — edit here only; matches Weather Room–style sizing.
+     * 3:2 gallery detail carousels on phone: generous caps; chevrons sit in narrow columns at page
+     * margins (see full-bleed .gallery-detail__carousel rules below) — 5.5rem reserves both buttons.
      */
-    --gallery-detail-carousel-mobile-media-max-w: min(93vw, calc(var(--gallery-detail-art-max-w) * 1.05));
-    --gallery-detail-carousel-mobile-media-max-h: min(72vh, calc(var(--gallery-detail-art-max-h) * 1.06));
+    --gallery-detail-carousel-mobile-media-max-w: min(
+      calc(
+        100vw - max(1rem, env(safe-area-inset-left, 0px)) - max(1rem, env(safe-area-inset-right, 0px)) -
+          5.5rem
+      ),
+      calc(var(--gallery-detail-art-max-w) * 1.1)
+    );
+    --gallery-detail-carousel-mobile-media-max-h: min(76vh, calc(var(--gallery-detail-art-max-h) * 1.08));
     --gallery-detail-carousel-mobile-cap-h: min(
-      74vh,
-      calc(var(--gallery-detail-carousel-mobile-media-max-h) * 1.42)
+      80vh,
+      calc(var(--gallery-detail-carousel-mobile-media-max-h) * 1.5)
     );
   }
 
@@ -1473,7 +1480,10 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
    */
   main.gallery-detail--tshirt {
     --gallery-detail-media-max-w: min(
-      calc(100vw - 2 * var(--gallery-detail-main-pad-x, 1rem)),
+      calc(
+        100vw - max(1rem, env(safe-area-inset-left, 0px)) - max(1rem, env(safe-area-inset-right, 0px)) -
+          5.5rem
+      ),
       calc(var(--gallery-detail-art-max-w) * 1.1)
     );
     --gallery-detail-media-max-h: min(92svh, calc(var(--gallery-detail-art-max-h) * 1.15));
@@ -1536,7 +1546,13 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   }
 
   main.gallery-detail--dollhouse {
-    --gallery-detail-media-max-w: min(92vw, 40rem);
+    --gallery-detail-media-max-w: min(
+      calc(
+        100vw - max(1rem, env(safe-area-inset-left, 0px)) - max(1rem, env(safe-area-inset-right, 0px)) -
+          5.5rem
+      ),
+      40rem
+    );
     --gallery-detail-media-max-h: min(68vh, 41.25rem);
     --gallery-detail-carousel-cap-h: min(68vh, calc(var(--gallery-detail-media-max-h) * 1.32));
     --gallery-detail-carousel-cap-w: min(
@@ -1607,6 +1623,55 @@ main.gallery-detail--facetrack .surveillance-webcam-placeholder__spinner {
   .gallery.midnight-page-single .gallery-midnight-tile {
     min-width: min(13.75rem, 88vw);
     min-height: min(13.75rem, 32vh);
+  }
+
+  /*
+   * Gallery detail carousels (phone): break out of main horizontal padding so the row spans the
+   * viewport; padding matches page margins / safe area; chevrons stay in 2.5rem columns at the edges
+   * and the viewport flexes to use all remaining width for larger slides.
+   */
+  main.gallery-detail--facetrack .gallery-detail__carousel,
+  main.gallery-detail--weatherroom .gallery-detail__carousel,
+  main.gallery-detail--tshirt .gallery-detail__carousel,
+  main.gallery-detail--dollhouse .gallery-detail__carousel {
+    width: calc(100% + 2 * var(--gallery-detail-main-pad-x));
+    max-width: 100vw;
+    margin-left: calc(-1 * var(--gallery-detail-main-pad-x));
+    margin-right: calc(-1 * var(--gallery-detail-main-pad-x));
+    gap: 0;
+    box-sizing: border-box;
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  }
+
+  main.gallery-detail--facetrack .gallery-detail__carousel-viewport,
+  main.gallery-detail--weatherroom .gallery-detail__carousel-viewport,
+  main.gallery-detail--tshirt .gallery-detail__carousel-viewport,
+  main.gallery-detail--dollhouse .gallery-detail__carousel-viewport {
+    max-width: none;
+  }
+
+  main.gallery-detail--facetrack .gallery-detail__carousel .mobile-scroll-hint__btn,
+  main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__btn,
+  main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__btn,
+  main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__btn {
+    box-sizing: border-box;
+    padding: 0.125rem 0;
+    flex: 0 0 2.5rem;
+    width: 2.5rem;
+    min-width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+  }
+
+  main.gallery-detail--facetrack .gallery-detail__carousel .mobile-scroll-hint__icon,
+  main.gallery-detail--weatherroom .gallery-detail__carousel .mobile-scroll-hint__icon,
+  main.gallery-detail--tshirt .gallery-detail__carousel .mobile-scroll-hint__icon,
+  main.gallery-detail--dollhouse .gallery-detail__carousel .mobile-scroll-hint__icon {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }
 
