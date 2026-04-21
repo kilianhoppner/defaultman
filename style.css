@@ -453,7 +453,7 @@ body {
 /* Detail pages: center in the visible viewport. min-height is required or main collapses to image height
    and justify-content:center has no effect (looks “stuck to the top”). Does not rely on :has(). */
 :root {
-  /* Bio + gallery detail copy: shared measure and left offset (bio is flush to body; detail subtracts main padding below) */
+  /* Bio + gallery detail copy: shared measure; phones use --prose-margin-left via .profile-content base rule */
   --prose-max-width: 68ch;
   --prose-margin-left: clamp(2.1875rem, 14vw, 15rem);
   /* Used in min-height calc; nudges vertical center slightly when increased */
@@ -472,7 +472,7 @@ main.gallery-detail {
   --gallery-detail-main-pad-x: clamp(1rem, 3vw, 2rem);
   display: flex;
   flex-direction: column;
-  /* Stretch so .profile-content uses the same width and left margin as on bio.html */
+  /* Prose blocks center on desktop via align-self; hero/stage stay full width */
   align-items: stretch;
   justify-content: flex-start;
   box-sizing: border-box;
@@ -520,10 +520,25 @@ main.gallery-detail {
   text-align: left;
 }
 
-/* Description + references: same line length and left edge as bio (main horizontal padding is accounted for) */
+/* Description + references: same max measure as bio; horizontal position set per breakpoint */
 main.gallery-detail .gallery-detail__details.profile-content {
   max-width: var(--prose-max-width);
-  margin-left: max(0, calc(var(--prose-margin-left) - var(--gallery-detail-main-pad-x)));
+}
+
+/* Desktop / tablet: center 68ch prose (bio + gallery detail); keep mobile (≤768) layout unchanged */
+@media (min-width: 769px) {
+  .profile-content {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  main.gallery-detail .gallery-detail__details.profile-content {
+    align-self: center;
+    min-width: 0;
+    width: min(100%, var(--prose-max-width));
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 /* Hero band: centers artwork; prose sits below and scrolls with the page */
